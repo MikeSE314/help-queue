@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Help Queue | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+  <nav></nav>
+  <div class="container">
+    <h1>Help Queue Login</h1>
+    <div id="app">
+      <div v-if="view.login">
+        <div class="row">
+          <p class="col s6">{{ user.username }}</p>
+          <p class="col s6">{{ user.password }}</p>
+        </div>
+        <div class="row">
+          <input class="col s4" v-model="user.username">
+          <input class="col s4" type="password" v-model="user.password">
+          <a class="btn col s4" v-on:click="login">Log in</a>
+        </div>
+      </div>
+      <div v-if="view.index">
+        <p>Things</p>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="javascripts/login.js"></script>
+</body>
+</html>
