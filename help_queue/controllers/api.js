@@ -2,9 +2,68 @@ const express = require('express')
 const router = express.Router()
 const User = require("../models/User.js")
 
-let loggedInUsers = []
-let helpUsers = []
-let passoffUsers = []
+let loggedInUsers = [
+  {
+    username: "alice",
+  },
+  {
+    username: "bob",
+  },
+  {
+    username: "chuck",
+  },
+  {
+    username: "dan",
+  },
+  {
+    username: "earl",
+  },
+  {
+    username: "frank",
+  },
+  {
+    username: "greg",
+  },
+]
+let helpUsers = [
+  {
+    username: "alice",
+    firstname: "Alice",
+    lastname: "Averette"
+  },
+  {
+    username: "bob",
+    firstname: "Robert",
+    lastname: "Benson"
+  },
+  {
+    username: "chuck",
+    firstname: "Charles",
+    lastname: "Clinton"
+  },
+  {
+    username: "dan",
+    firstname: "Daniel",
+    lastname: "Davies"
+  },
+]
+let passoffUsers = [
+  {
+    username: "earl",
+    firstname: "Earl",
+    lastname: "Earnest"
+  },
+  {
+    username: "frank",
+    firstname: "Frankie",
+    lastname: "Fillandery"
+  },
+  {
+    username: "greg",
+    firstname: "Gregory",
+    lastname: "Gregson"
+  },
+]
 
 /* GET home page. */
 router.get('/', async (req, res, next) => {
@@ -25,8 +84,14 @@ async function checkPassword(username, password) {
   try {
     User.findOne({username: username}, (err, user) => {
       if (err) {
+        console.error(err)
         return false
       }
+      if (!user) {
+        return false
+      }
+      console.log(password)
+      console.log(user.password)
       if (user.password === password) {
         return true
       }
@@ -55,13 +120,21 @@ async function checkAdmin(username, password) {
   }
 }
 
-async function getFullName(username) {
+function getFullName(user) {
+  return user.firstname + " " + user.lastname
+}
+
+async function getUser(username) {
   try {
-    User.findOne({username: username}, (err, user) => {
+    return await User.findOne({username: username}, (err, user) => {
       if (err) {
+        console.error(err)
         return false
       }
-      return user.firstname + " " + user.lastname
+      if (user === {} || user === null) {
+        return false
+      }
+      return user
     })
   } catch (err) {
     console.error(err)
@@ -71,11 +144,19 @@ async function getFullName(username) {
 
 // Register
 router.post('/user/register', async (req, res) => {
+  let username = req.body.username
   if (!User.isValid(req.body)) {
-    res.sendStatus(500)
+    res.sendStatus(501)
     return
   }
   if (req.body.password !== req.body.c_password) {
+    res.sendStatus(502)
+    return
+  }
+  let _user = await getUser(username)
+  if (_user) {
+    res.sendStatus(503)
+    return
   }
   let user = new User({
     username: req.body.username,
@@ -86,10 +167,10 @@ router.post('/user/register', async (req, res) => {
   })
   try {
     user.save()
-    res.send(200)
+    res.sendStatus(200)
     loggedInUsers.push(user.username)
   } catch (err) {
-    res.sendStatus(500)
+    res.sendStatus(504)
   }
 })
 
@@ -97,12 +178,21 @@ router.post('/user/register', async (req, res) => {
 router.put('/user/login', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
-  if (checkPassword(username, password)) {
-    res.sendStatus(200)
-    loggedInUsers.push(username)
+  console.log(username)
+  let _user = await getUser(username)
+  console.log(_user)
+  if (!_user) {
+    console.log("no such user")
+    res.sendStatus(401)
     return
   }
-  res.sendStatus(401)
+  if (_user.password !== password) {
+    console.log("passwords don't match")
+    res.sendStatus(401)
+    return
+  }
+  res.sendStatus(200)
+  loggedInUsers.push(username)
 })
 
 // Logout              | put  | /user/logout
@@ -146,8 +236,7 @@ router.get('/help/', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
   if (checkPassword(username, password)) {
-    // TODO
-    res.send(JSON.stringify(helpUsers))
+    res.send(JSON.stringify(helpUsers.map(item => getFullName(item))))
     return
   }
   res.sendStatus(401)
@@ -182,9 +271,7 @@ router.get('/passoff/', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
   if (checkPassword(username, password)) {
-    // TODO
-    console.log(JSON.stringify(helpUsers.map(item => getFullName(item))))
-    res.send(JSON.stringify(helpUsers.map(item => getFullName(item))))
+    res.send(JSON.stringify(passoffUsers.map(item => getFullName(item))))
     return
   }
   res.sendStatus(401)

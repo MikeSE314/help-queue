@@ -6,8 +6,4 @@ router.get("/", async (req, res, next) => {
   res.render("index", {title: "Express"})
 })
 
-router.get("/login", async (req, res, next) => {
-  res.render("login")
-})
-
 module.exports = router

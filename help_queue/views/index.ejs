@@ -2,13 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Skeleton</title>
+  <title>Help Queue | Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="css/style.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 </head>
 <body>
   <nav></nav>
-  <h1>Hello, world</h1>
+  <div class="container">
+    <h1>Help Queue</h1>
+    <div id="app">
+      <div v-if="view.login">
+        <div class="row">
+          <input type="text" v-model="user.username" placeholder="Username">
+          <input type="password" v-model="user.password" placeholder="Password">
+          <a class="btn waves-effect" v-on:click="login">Log in</a>
+        </div>
+        <a v-on:click="changeView('register')">Register</a>
+      </div>
+      <div v-if="view.register">
+        <div class="row">
+          <input type="text" v-model="user.username" placeholder="Username">
+          <input type="text" v-model="user.firstname" placeholder="First Name">
+          <input type="text" v-model="user.lastname" placeholder="Last Name">
+          <input type="password" v-model="user.password" placeholder="Password">
+          <input type="password" v-model="user.c_password" placeholder="Confirm Password">
+          <a class="btn waves-effect" v-on:click="register">Register</a>
+        </div>
+        <a v-on:click="changeView('login')">Login</a>
+      </div>
+      <div v-if="view.index">
+        <div class="row">
+          <ul class="left collection col s6">
+            <li class="collection-header">
+              <h4>Help List</h4>
+            </li>
+            <li v-for="user in helpUsers" class="collection-item">
+              {{ user.firstname }} {{ user.lastname }}
+            </li>
+          </ul>
+          <ul class="right collection col s6">
+            <li class="collection-header">
+              <h4>Pass-Off List</h4>
+            </li>
+            <li v-for="user in passOffUsers" class="collection-item">
+              {{ user.firstname }} {{ user.lastname }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div v-if="error">
+        {{ error_message }}
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>
