@@ -1,69 +1,78 @@
-const express = require('express')
+const express = require("express")
 const router = express.Router()
 const User = require("../models/User.js")
+const Cookies = require("cookies")
 
-let loggedInUsers = [
-  {
-    username: "alice",
-  },
-  {
-    username: "bob",
-  },
-  {
-    username: "chuck",
-  },
-  {
-    username: "dan",
-  },
-  {
-    username: "earl",
-  },
-  {
-    username: "frank",
-  },
-  {
-    username: "greg",
-  },
-]
-let helpUsers = [
-  {
-    username: "alice",
-    firstname: "Alice",
-    lastname: "Averette"
-  },
-  {
-    username: "bob",
-    firstname: "Robert",
-    lastname: "Benson"
-  },
-  {
-    username: "chuck",
-    firstname: "Charles",
-    lastname: "Clinton"
-  },
-  {
-    username: "dan",
-    firstname: "Daniel",
-    lastname: "Davies"
-  },
-]
-let passoffUsers = [
-  {
-    username: "earl",
-    firstname: "Earl",
-    lastname: "Earnest"
-  },
-  {
-    username: "frank",
-    firstname: "Frankie",
-    lastname: "Fillandery"
-  },
-  {
-    username: "greg",
-    firstname: "Gregory",
-    lastname: "Gregson"
-  },
-]
+let loggedInUsers = {
+  users: [
+    {
+      username: "alice",
+    },
+    {
+      username: "bob",
+    },
+    {
+      username: "chuck",
+    },
+    {
+      username: "dan",
+    },
+    {
+      username: "earl",
+    },
+    {
+      username: "frank",
+    },
+    {
+      username: "greg",
+    },
+  ]
+}
+
+let helpUsers = {
+  users: [
+    {
+      username: "alice",
+      firstname: "Alice",
+      lastname: "Averette"
+    },
+    {
+      username: "bob",
+      firstname: "Robert",
+      lastname: "Benson"
+    },
+    {
+      username: "chuck",
+      firstname: "Charles",
+      lastname: "Clinton"
+    },
+    {
+      username: "dan",
+      firstname: "Daniel",
+      lastname: "Davies"
+    },
+  ]
+}
+
+let passoffUsers = {
+  users: [
+    {
+      username: "earl",
+      firstname: "Earl",
+      lastname: "Earnest"
+    },
+    {
+      username: "frank",
+      firstname: "Frankie",
+      lastname: "Fillandery"
+    },
+    {
+      username: "greg",
+      firstname: "Gregory",
+      lastname: "Gregson"
+    },
+  ]
+}
 
 /* GET home page. */
 router.get('/', async (req, res, next) => {
@@ -90,8 +99,6 @@ async function checkPassword(username, password) {
       if (!user) {
         return false
       }
-      console.log(password)
-      console.log(user.password)
       if (user.password === password) {
         return true
       }
@@ -146,18 +153,18 @@ async function getUser(username) {
 router.post('/user/register', async (req, res) => {
   let username = req.body.username
   if (!User.isValid(req.body)) {
-    res.sendStatus(501)
+    res.sendStatus(521)
     return
   }
   if (req.body.password !== req.body.c_password) {
-    res.sendStatus(502)
+    res.sendStatus(522)
     return
   }
-  let _user = await getUser(username)
-  if (_user) {
-    res.sendStatus(503)
-    return
-  }
+  // let _user = await getUser(username)
+  // if (_user) {
+    // res.sendStatus(523)
+    // return
+  // }
   let user = new User({
     username: req.body.username,
     firstname: req.body.firstname,
@@ -166,11 +173,12 @@ router.post('/user/register', async (req, res) => {
     admin: false
   })
   try {
-    user.save()
-    res.sendStatus(200)
-    loggedInUsers.push(user.username)
+    await user.save()
+    loggedInUsers.users.push(user.username)
+    res.send(JSON.stringify(user))
   } catch (err) {
-    res.sendStatus(504)
+    console.error(err)
+    res.sendStatus(524)
   }
 })
 
@@ -178,21 +186,17 @@ router.post('/user/register', async (req, res) => {
 router.put('/user/login', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
-  console.log(username)
   let _user = await getUser(username)
-  console.log(_user)
   if (!_user) {
-    console.log("no such user")
     res.sendStatus(401)
     return
   }
   if (_user.password !== password) {
-    console.log("passwords don't match")
     res.sendStatus(401)
     return
   }
-  res.sendStatus(200)
-  loggedInUsers.push(username)
+  res.send(JSON.stringify(_user))
+  loggedInUsers.users.push(username)
 })
 
 // Logout              | put  | /user/logout
@@ -201,7 +205,7 @@ router.put('/user/logout', async (req, res) => {
   let password = req.body.password
   if (checkPassword(username, password)) {
     res.sendStatus(200)
-    loggedInUsers.filter(item => item !== username)
+    loggedInUsers.users.filter(item => item !== username)
     return
   }
   res.sendStatus(401)
@@ -213,7 +217,7 @@ router.put('/help/add', async (req, res) => {
   let password = req.body.password
   if (checkPassword(username, password)) {
     res.sendStatus(200)
-    helpUsers.push(username)
+    helpUsers.users.push(username)
     return
   }
   res.sendStatus(401)
@@ -225,7 +229,7 @@ router.put('/help/remove', async (req, res) => {
   let password = req.body.password
   if (checkPassword(username, password)) {
     res.sendStatus(200)
-    helpUsers.filter(item => item !== username)
+    helpUsers.users.filter(item => item !== username)
     return
   }
   res.sendStatus(401)
@@ -236,7 +240,7 @@ router.get('/help/', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
   if (checkPassword(username, password)) {
-    res.send(JSON.stringify(helpUsers.map(item => getFullName(item))))
+    res.send(JSON.stringify(helpUsers))
     return
   }
   res.sendStatus(401)
@@ -248,7 +252,7 @@ router.put('/passoff/add', async (req, res) => {
   let password = req.body.password
   if (checkPassword(username, password)) {
     res.sendStatus(200)
-    passoffUsers.push(username)
+    passoffUsers.users.push(username)
     return
   }
   res.sendStatus(401)
@@ -260,7 +264,7 @@ router.put('/passoff/remove', async (req, res) => {
   let password = req.body.password
   if (checkPassword(username, password)) {
     res.sendStatus(200)
-    passoffUsers.filter(item => item !== username)
+    passoffUsers.users.filter(item => item !== username)
     return
   }
   res.sendStatus(401)
@@ -271,7 +275,7 @@ router.get('/passoff/', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
   if (checkPassword(username, password)) {
-    res.send(JSON.stringify(passoffUsers.map(item => getFullName(item))))
+    res.send(JSON.stringify(passoffUsers))
     return
   }
   res.sendStatus(401)

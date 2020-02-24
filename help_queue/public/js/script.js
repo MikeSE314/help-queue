@@ -16,7 +16,7 @@ let app = new Vue({
     error: false,
     error_message: "",
     helpUsers: [],
-    passOffUsers: [],
+    passoffUsers: [],
   },
   methods: {
     login() {
@@ -27,15 +27,17 @@ let app = new Vue({
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
-        console.log(response)
-        return response.status
-      }).then(status => {
-        if (status === 200) {
-          this.changeView("index")
-          return
+        if (response.status !== 200) {
+          this.error = true
+          this.error_message = "Login no. Is bad."
+          throw new Error("Bad login")
         }
-        this.error = true
-        this.error_message = "Login no. Is bad."
+        return response.json()
+      }).then(json => {
+        this.user = json
+        this.changeView("index")
+        this.getPassoffList()
+        this.getHelpList()
       }).catch(err => {
         console.error(err)
       })
@@ -48,11 +50,13 @@ let app = new Vue({
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
-        console.log(response)
         return response.status
       }).then(status => {
         if (status === 200) {
+          // GOOD
           this.changeView("index")
+          this.getPassoffList()
+          this.getHelpList()
           return
         }
         this.error = true
@@ -76,18 +80,17 @@ let app = new Vue({
       fetch(url).then(response => {
         return response.json()
       }).then(json => {
-        console.log(json)
-        this.helpUsers = JSON.parse(json)
+        this.helpUsers = json
       }).catch(err => {
         console.error(err)
       })
     },
-    getPassOffList() {
+    getPassoffList() {
       url = "api/passoff"
       fetch(url).then(response => {
         return response.json()
       }).then(json => {
-        this.passOffUsers = JSON.parse(json)
+        this.passoffUsers = json
       }).catch(err => {
         console.error(err)
       })
