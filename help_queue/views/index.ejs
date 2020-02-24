@@ -19,7 +19,7 @@
           <!--<input type="submit" class="btn waves-effect" v-on:submit="login">Log in</input>-->
           <button type="submit" class="btn waves-effect" >Log in</button>
         </form>
-        <a v-on:click="changeView('register')">Register</a>
+        <a href="#" v-on:click="changeView('register')">Register</a>
       </div>
       <div v-if="view.register">
         <form class="row" v-on:submit.prevent="register">
@@ -30,24 +30,36 @@
           <input required type="password" v-model="user.c_password" placeholder="Confirm Password">
           <button type="submit" class="btn waves-effect">Register</button>
         </form>
-        <a v-on:click="changeView('login')">Login</a>
+        <a href="#" v-on:click="changeView('login')">Login</a>
       </div>
       <div v-if="view.index">
         <div class="row">
           <ul class="left collection col s6">
             <li class="collection-header">
-              <h4>Help List</h4>
+              <h4>Passoff List</h4>
             </li>
-            <li v-for="user in helpUsers.users" class="collection-item">
-              {{ user.firstname }} {{ user.lastname }}
+            <li v-for="passoffUser in passoffUsers" class="collection-item">
+              {{ passoffUser.firstname }} {{ passoffUser.lastname }}
+              <a v-if="user.admin" class="secondary-content" href="#" v-on:click="adminRemovePassoff(passoffUser.username)">
+                remove
+              </a>
+            </li>
+            <li v-if="!user.admin" class="collection-item">
+              <a href="#" v-on:click="joinPassoff()">Join Passoff List</a>
             </li>
           </ul>
           <ul class="right collection col s6">
             <li class="collection-header">
-              <h4>Passoff List</h4>
+              <h4>Help List</h4>
             </li>
-            <li v-for="user in passoffUsers.users" class="collection-item">
-              {{ user.firstname }} {{ user.lastname }}
+            <li v-for="helpUser in helpUsers" class="collection-item">
+              {{ helpUser.firstname }} {{ helpUser.lastname }}
+              <a v-if="user.admin" class="secondary-content" href="#" v-on:click="adminRemoveHelp(helpUser.username)">
+                remove
+              </a>
+            </li>
+            <li v-if="!user.admin" class="collection-item">
+              <a href="#" v-on:click="joinHelp()">Join Help List</a>
             </li>
           </ul>
         </div>

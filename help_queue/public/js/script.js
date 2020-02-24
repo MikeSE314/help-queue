@@ -7,6 +7,7 @@ let app = new Vue({
       lastname: "",
       password: "",
       c_password: "",
+      admin: false,
     },
     view: {
       login: true,
@@ -94,6 +95,62 @@ let app = new Vue({
       }).catch(err => {
         console.error(err)
       })
-    }
+    },
+    adminRemovePassoff(username) {
+      url = "api/passoff/admin/remove/" + username
+      fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
+        return response.json()
+      }).then(json => {
+        this.passoffUsers = json
+      }).catch(err => {
+        console.error(err)
+      })
+    },
+    adminRemoveHelp(username) {
+      url = "api/help/admin/remove/" + username
+      fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
+        return response.json()
+      }).then(json => {
+        this.helpUsers = json
+      }).catch(err => {
+        console.error(err)
+      })
+    },
+    joinHelp() {
+      url = "api/help/add"
+      fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
+        return response.json()
+      }).then(json => {
+        this.helpUsers.push(json)
+      }).catch(err => {
+        console.error(err)
+      })
+    },
+    joinPassoff() {
+      url = "api/passoff/add"
+      fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
+        return response.json()
+      }).then(json => {
+        this.passoffUsers.push(json)
+      }).catch(err => {
+        console.error(err)
+      })
+    },
   }
 })
