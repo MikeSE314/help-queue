@@ -43,8 +43,11 @@
               <a v-if="user.admin" class="secondary-content" href="#" v-on:click="adminRemovePassoff(passoffUser.username)">
                 remove
               </a>
+              <a v-if="passoffUser.username === user.username" class="secondary-content" href="#" v-on:click="removePassoff()">
+                remove
+              </a>
             </li>
-            <li v-if="!user.admin" class="collection-item">
+            <li v-if="!user.admin && !onList" class="collection-item">
               <a href="#" v-on:click="joinPassoff()">Join Passoff List</a>
             </li>
           </ul>
@@ -57,8 +60,11 @@
               <a v-if="user.admin" class="secondary-content" href="#" v-on:click="adminRemoveHelp(helpUser.username)">
                 remove
               </a>
+              <a v-if="helpUser.username === user.username" class="secondary-content" href="#" v-on:click="removeHelp()">
+                remove
+              </a>
             </li>
-            <li v-if="!user.admin" class="collection-item">
+            <li v-if="!user.admin && !onList" class="collection-item">
               <a href="#" v-on:click="joinHelp()">Join Help List</a>
             </li>
           </ul>

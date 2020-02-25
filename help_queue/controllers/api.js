@@ -3,6 +3,7 @@ const router = express.Router()
 const User = require("../models/User.js")
 const Cookies = require("cookies")
 
+// loggedInUsers
 let loggedInUsers = [
   {
     username: "alice",
@@ -27,6 +28,7 @@ let loggedInUsers = [
   },
 ]
 
+// helpUsers
 let helpUsers = [
   {
     username: "alice",
@@ -50,6 +52,7 @@ let helpUsers = [
   },
 ]
 
+// passoffUsers
 let passoffUsers = [
   {
     username: "earl",
@@ -67,11 +70,6 @@ let passoffUsers = [
     lastname: "Gregson"
   },
 ]
-
-/* GET home page. */
-router.get('/', async (req, res, next) => {
-  res.sendStatus(200)
-})
 
 // Register            | post | /user/register
 // Login               | put  | /user/login
@@ -120,11 +118,6 @@ router.post('/user/register', async (req, res) => {
     res.sendStatus(522)
     return
   }
-  // let _user = await getUser(username)
-  // if (_user) {
-    // res.sendStatus(523)
-    // return
-  // }
   let user = new User({
     username: req.body.username,
     firstname: req.body.firstname,
@@ -178,6 +171,7 @@ router.put('/help/add', async (req, res) => {
   let username = req.body.username
   if (helpUsers.some(item => item.username === username)) {
     res.sendStatus(500)
+    return
   }
   let password = req.body.password
   let _user = await getUser(username)
@@ -228,6 +222,7 @@ router.put('/passoff/add', async (req, res) => {
   let username = req.body.username
   if (passoffUsers.some(item => item.username === username)) {
     res.sendStatus(500)
+    return
   }
   let password = req.body.password
   let _user = await getUser(username)
