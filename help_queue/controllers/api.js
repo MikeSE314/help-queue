@@ -86,6 +86,7 @@ function getSmallUser(user) {
     username: user.username,
     firstname: user.firstname,
     lastname: user.lastname,
+    admin: user.admin,
   }
 }
 
@@ -105,6 +106,10 @@ async function getUser(username) {
     console.error(err)
     return false
   }
+}
+
+function validateToken(req) {
+  return req.session.authorized || false
 }
 
 // Register
@@ -127,8 +132,14 @@ router.post('/user/register', async (req, res) => {
   })
   try {
     await user.save()
+    // GOOD!
+    req.session.authorized = true
+    req.session.username = username
+    req.session.firstname = firstname
+    req.session.lastname = lastname
+    req.session.admin = false
     loggedInUsers.push(username)
-    res.send(JSON.stringify(user))
+    res.sendStatus(200)
   } catch (err) {
     console.error(err)
     res.sendStatus(524)
@@ -140,25 +151,44 @@ router.put('/user/login', async (req, res) => {
   let username = req.body.username
   let password = req.body.password
   let _user = await getUser(username)
-  if (!_user) {
-    res.sendStatus(401)
+  if (!_user || _user.password !== password) {
+    res.sendStatus(403)
     return
   }
-  if (_user.password === password) {
-    res.send(JSON.stringify(_user))
-    loggedInUsers.push(username)
+  // GOOD!
+  req.session.authorized = true
+  req.session.username = _user.username
+  req.session.firstname = _user.firstname
+  req.session.lastname = _user.lastname
+  req.session.admin = _user.admin
+  loggedInUsers.push(getSmallUser(req.session))
+  // TODO redirect
+  res.sendStatus(200)
+})
+
+// Check Token
+router.get('/user/check_token', async (req, res) => {
+  if (validateToken(req)) {
+    res.sendStatus(200)
+    return
   }
   res.sendStatus(401)
-  return
 })
+
+
+// make good token
+/*
+router.get("/user/token/cheat", async (req, res) => {
+  req.session.authorized = true
+  res.sendStatus(200)
+})
+*/
+
 
 // Logout              | put  | /user/logout
 router.put('/user/logout', async (req, res) => {
-  let username = req.body.username
-  let password = req.body.password
-  let _user = await getUser(username)
-  // if (await checkPassword(username, password)) {
-  if (_user.password === password) {
+  if (validateToken(req)) {
+    let username = req.session.username
     res.sendStatus(200)
     loggedInUsers = loggedInUsers.filter(item => item.username !== username)
     return
@@ -168,48 +198,44 @@ router.put('/user/logout', async (req, res) => {
 
 // Add to help         | put  | /help/add
 router.put('/help/add', async (req, res) => {
-  let username = req.body.username
+  if (!validateToken(req)) {
+    res.sendStatus(401)
+    return
+  }
+  let username = req.session.username
   if (helpUsers.some(item => item.username === username)) {
     res.sendStatus(500)
     return
   }
-  let password = req.body.password
-  let _user = await getUser(username)
-  if (_user.password === password) {
-  // if (await checkPassword(username, password)) {
-    helpUsers.push(getSmallUser(_user))
-    res.send(getSmallUser(_user))
-    return
-  }
-  res.sendStatus(401)
+  helpUsers.push(getSmallUser(req.session))
+  res.sendStatus(200)
+  return
 })
 
 // Remove from help    | put  | /help/remove
 router.put('/help/remove', async (req, res) => {
-  let username = req.body.username
-  let password = req.body.password
-  let _user = await getUser(username)
-  // if (await checkPassword(username, password)) {
-  if (_user.password === password) {
-    res.sendStatus(200)
-    helpUsers = helpUsers.filter(item => item.username !== username)
+  if (!validateToken(req)) {
+    res.sendStatus(401)
     return
   }
-  res.sendStatus(401)
+  let username = req.session.username
+  helpUsers = helpUsers.filter(item => item.username !== username)
+  res.sendStatus(200)
 })
 
 // Remove from help as admin | put | /help/admin/remove/:u_username
 router.put("/help/admin/remove/:u_username", async (req, res) => {
-  let username = req.body.username
-  let password = req.body.password
-  let u_username = req.params.u_username
-  let _user = await getUser(username)
-  if (_user.password === password && _user.admin) {
-    helpUsers = helpUsers.filter(item => item.username !== u_username)
-    res.send(helpUsers)
+  if (!validateToken(req)) {
+    res.sendStatus(401)
     return
   }
-  res.sendStatus(401)
+  if (!req.session.admin) {
+    res.sendStatus(403)
+    return
+  }
+  let u_username = req.params.u_username
+  helpUsers = helpUsers.filter(item => item.username !== u_username)
+  res.sendStatus(200)
 })
 
 // Get help list       | get  | /help
@@ -219,50 +245,43 @@ router.get('/help/', async (req, res) => {
 
 // Add to passoff         | put  | /passoff/add
 router.put('/passoff/add', async (req, res) => {
+  if (!validateToken(req)) {
+    res.sendStatus(401)
+    return
+  }
   let username = req.body.username
   if (passoffUsers.some(item => item.username === username)) {
     res.sendStatus(500)
     return
   }
-  let password = req.body.password
-  let _user = await getUser(username)
-  if (_user.password === password) {
-    passoffUsers.push(getSmallUser(_user))
-    res.send(getSmallUser(_user))
-    return
-  }
-  res.sendStatus(401)
+  passoffUsers.push(getSmallUser(req.session))
+  res.sendStatus(200)
 })
 
 // Remove from passoff    | put  | /passoff/remove
 router.put('/passoff/remove', async (req, res) => {
-  let username = req.body.username
-  let password = req.body.password
-  let _user = await getUser(username)
-  if (_user.password === password) {
-  // if (await checkPassword(username, password)) {
-    res.sendStatus(200)
-    passoffUsers = passoffUsers.filter(item => item.username !== username)
+  if (!validateToken(req)) {
+    res.sendStatus(401)
     return
   }
-  res.sendStatus(401)
+  let username = req.session.username
+  passoffUsers = passoffUsers.filter(item => item.username !== username)
+  res.sendStatus(200)
 })
 
 // Remove from passoff as admin | put | /passoff/admin/remove/:u_username
 router.put("/passoff/admin/remove/:u_username", async (req, res) => {
-  let username = req.body.username
-  let password = req.body.password
-  let u_username = req.params.u_username
-  let _user = await getUser(username)
-  if (_user.password === password && _user.admin) {
-    console.log(passoffUsers)
-    console.log(u_username)
-    passoffUsers = passoffUsers.filter(item => item.username !== u_username)
-    console.log(passoffUsers)
-    res.send(passoffUsers)
+  if (!validateToken(req)) {
+    res.sendStatus(401)
     return
   }
-  res.sendStatus(401)
+  if (!req.session.admin) {
+    res.sendStatus(403)
+    return
+  }
+  let u_username = req.params.u_username
+  passoffUsers = passoffUsers.filter(item => item.username !== u_username)
+  res.sendStatus(200)
 })
 
 // Get passoff list       | get  | /passoff

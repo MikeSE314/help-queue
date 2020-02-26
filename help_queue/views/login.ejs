@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Help Queue | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+  <nav></nav>
+  <div class="container">
+    <h1>Help Queue</h1>
+    <div id="app">
+      <div v-if="view.login">
+        <form class="row" v-on:submit.prevent="login">
+          <input required type="text" v-model="user.username" placeholder="Username">
+          <input required type="password" v-model="user.password" placeholder="Password">
+          <button type="submit" class="btn waves-effect" >Log in</button>
+        </form>
+        <a href="#" v-on:click="changeView('register')">Register</a>
+      </div>
+      <div v-if="view.register">
+        <form class="row" v-on:submit.prevent="register">
+          <input required type="text" v-model="user.username" placeholder="Username">
+          <input required type="text" v-model="user.firstname" placeholder="First Name">
+          <input required type="text" v-model="user.lastname" placeholder="Last Name">
+          <input required type="password" v-model="user.password" placeholder="Password">
+          <input required type="password" v-model="user.c_password" placeholder="Confirm Password">
+          <button type="submit" class="btn waves-effect">Register</button>
+        </form>
+        <a href="#" v-on:click="changeView('login')">Login</a>
+      </div>
+      <div v-if="error">
+        {{ error_message }}
+      </div>
+      </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+      <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+      <script src="js/login.js"></script>
+</body>
+</html>
+

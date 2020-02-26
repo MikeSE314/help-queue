@@ -13,6 +13,11 @@ let app = new Vue({
       admin: false,
     },
 
+    view: {
+      login: true,
+      register: false,
+    },
+
     error: false,
     error_message: "",
     helpUsers: [],
@@ -35,6 +40,47 @@ let app = new Vue({
       }).then(json => {
         this.nonce = json.nonce
       }).catch(err => {
+        console.error(err)
+      })
+    },
+
+    // login()
+    login() {
+      this.clearErrors()
+      url = "api/user/login"
+      fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
+        if (response.status !== 200) {
+          throw new Error("Bad login")
+        }
+        window.location.replace("/")
+      }).catch(err => {
+        this.error = true
+        this.error_message = err.message
+        console.error(err)
+      })
+    },
+
+    // register()
+    register() {
+      this.clearErrors()
+      url = "api/user/register"
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
+        if (response.status !== 200) {
+          throw new Error("Bad login!")
+        }
+        window.location.replace("/")
+        return
+      }).catch(err => {
+        this.error = true
+        this.error_message = err.message
         console.error(err)
       })
     },
@@ -91,9 +137,9 @@ let app = new Vue({
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad remove")
-        }
+        return response.json()
+      }).then(json => {
+        this.helpUsers = json
         socket.emit("updateList")
       }).catch(err => {
         console.error(err)
@@ -108,9 +154,9 @@ let app = new Vue({
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad remove")
-        }
+        return response.json()
+      }).then(json => {
+        this.passoffUsers = json
         socket.emit("updateList")
       }).catch(err => {
         console.error(err)
@@ -125,6 +171,9 @@ let app = new Vue({
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
+        return response.json()
+      }).then(json => {
+        this.helpUsers.push(json)
         socket.emit("updateList")
       }).catch(err => {
         console.error(err)
@@ -139,6 +188,9 @@ let app = new Vue({
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
+        return response.json()
+      }).then(json => {
+        this.passoffUsers.push(json)
         socket.emit("updateList")
       }).catch(err => {
         console.error(err)
@@ -147,12 +199,14 @@ let app = new Vue({
 
     // removeHelp()
     removeHelp() {
+      console.log("Helping!")
       url = "api/help/remove"
       fetch(url, {
         method: "PUT",
         body: JSON.stringify(this.user),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
+        console.log("returned")
         if (response.status !== 200) {
           throw new Error("Bad")
         }
@@ -181,11 +235,6 @@ let app = new Vue({
       })
     },
 
-    // checkAuthentication()
-    checkAuthentication() {
-      url = "api/user/check_token/" + this.token + "/" + this.username
-    }
-
   },
 
   // computed
@@ -203,18 +252,12 @@ let app = new Vue({
       return this.onHelpList || this.onPassoffList
     },
 
-  },
-
-  // created
-  created: function() {
-    this.checkAuthentication()
-    this.getLists()
-  },
+  }
 
 })
 
-let socket = io.connect("http://localhost:8001")
-socket.on("updateList", (data) => {
-  app.getLists()
-})
+// let socket = io.connect("http://localhost:8001")
+// socket.on("updateList", (data) => {
+//   app.getLists()
+// })
 

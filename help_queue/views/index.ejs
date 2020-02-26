@@ -8,75 +8,66 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 </head>
 <body>
-  <nav></nav>
+  <nav>
+    <div class="nav-wrapper">
+      <ul class="right">
+        <li><a href="/logout">Log out</a></li>
+      </ul>
+    </div>
+  </nav>
   <div class="container">
     <h1>Help Queue</h1>
     <div id="app">
-      <div v-if="view.login">
-        <form class="row" v-on:submit.prevent="login">
-          <input required type="text" v-model="user.username" placeholder="Username">
-          <input required type="password" v-model="user.password" placeholder="Password">
-          <!--<input type="submit" class="btn waves-effect" v-on:submit="login">Log in</input>-->
-          <button type="submit" class="btn waves-effect" >Log in</button>
-        </form>
-        <a href="#" v-on:click="changeView('register')">Register</a>
-      </div>
-      <div v-if="view.register">
-        <form class="row" v-on:submit.prevent="register">
-          <input required type="text" v-model="user.username" placeholder="Username">
-          <input required type="text" v-model="user.firstname" placeholder="First Name">
-          <input required type="text" v-model="user.lastname" placeholder="Last Name">
-          <input required type="password" v-model="user.password" placeholder="Password">
-          <input required type="password" v-model="user.c_password" placeholder="Confirm Password">
-          <button type="submit" class="btn waves-effect">Register</button>
-        </form>
-        <a href="#" v-on:click="changeView('login')">Login</a>
-      </div>
-      <div v-if="view.index">
-        <div class="row">
-          <ul class="left collection col s6">
-            <li class="collection-header">
-              <h4>Passoff List</h4>
-            </li>
-            <li v-for="passoffUser in passoffUsers" class="collection-item">
-              {{ passoffUser.firstname }} {{ passoffUser.lastname }}
-              <a v-if="user.admin" class="secondary-content" href="#" v-on:click="adminRemovePassoff(passoffUser.username)">
-                remove
-              </a>
-              <a v-if="passoffUser.username === user.username" class="secondary-content" href="#" v-on:click="removePassoff()">
-                remove
-              </a>
-            </li>
-            <li v-if="!user.admin && !onList" class="collection-item">
-              <a href="#" v-on:click="joinPassoff()">Join Passoff List</a>
-            </li>
-          </ul>
-          <ul class="right collection col s6">
-            <li class="collection-header">
-              <h4>Help List</h4>
-            </li>
-            <li v-for="helpUser in helpUsers" class="collection-item">
-              {{ helpUser.firstname }} {{ helpUser.lastname }}
-              <a v-if="user.admin" class="secondary-content" href="#" v-on:click="adminRemoveHelp(helpUser.username)">
-                remove
-              </a>
-              <a v-if="helpUser.username === user.username" class="secondary-content" href="#" v-on:click="removeHelp()">
-                remove
-              </a>
-            </li>
-            <li v-if="!user.admin && !onList" class="collection-item">
-              <a href="#" v-on:click="joinHelp()">Join Help List</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div v-if="error">
-        {{ error_message }}
+      <div class="row">
+        <ul class="left collection col s6">
+          <li class="collection-header">
+            <h4>Passoff List</h4>
+          </li>
+          <li v-for="passoffUser in passoffUsers" class="collection-item">
+            {{ passoffUser.firstname }} {{ passoffUser.lastname }}
+            <% if (admin) { %>
+            <a class="secondary-content" href="#" v-on:click="adminRemovePassoff(passoffUser.username)">
+              remove
+            </a>
+            <% } %>
+            <a v-if="passoffUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removePassoff(<%= username %>)">
+              remove
+            </a>
+          </li>
+          <% if (!admin) { %>
+          <li v-if="!onList" class="collection-item">
+            <a href="#" v-on:click="joinPassoff(<%= username %>)">Join Passoff List</a>
+          </li>
+          <% } %>
+        </ul>
+        <ul class="right collection col s6">
+          <li class="collection-header">
+            <h4>Help List</h4>
+          </li>
+          <li v-for="helpUser in helpUsers" class="collection-item">
+            {{ helpUser.firstname }} {{ helpUser.lastname }}
+            <% if (admin) { %>
+            <a class="secondary-content" href="#" v-on:click="adminRemoveHelp(helpUser.username)">
+              remove
+            </a>
+            <% } %>
+            <a v-if="helpUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removeHelp(<%= username %>)">
+              remove
+            </a>
+          </li>
+          <% if (!admin) { %>
+          <li v-if="!onList" class="collection-item">
+            <a href="#" v-on:click="joinHelp(<%= username %>)">Join Help List</a>
+          </li>
+          <% } %>
+        </ul>
       </div>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
   <script src="js/script.js"></script>
 </body>
 </html>
