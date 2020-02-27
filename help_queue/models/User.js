@@ -6,9 +6,13 @@ let userSchema = new db.Schema({
   username: String,
   firstname: String,
   lastname: String,
-  password: String,
+  s_salted_password: String,
+  salt_c: String,
+  salt_s: String,
   admin: Boolean,
 })
+
+// sizzledashviewlessoversweet
 
 let User = db.model("User", userSchema)
 User.isValid = (body) => {

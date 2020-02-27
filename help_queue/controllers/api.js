@@ -129,6 +129,11 @@ let salts_c = {}
 // salt_c
 router.get('/user/salt_c/:username', async (req, res) => {
   let username = req.params.username
+  let _user = await getUser(username)
+  if (_user) {
+    res.send(_user.salt_c)
+    return
+  }
   let salt_c = salts_c[username]
   if (!salt_c) {
     salt_c = generateSalt()
@@ -204,16 +209,22 @@ router.post('/user/register', async (req, res) => {
 // Login
 router.put('/user/login', async (req, res) => {
   let username = req.body.username
+  let _user = await getUser(username)
+  if (!_user) {
+    res.sendStatus(403)
+    return
+  }
   let hc = req.body.hc
-  console.log(hc)
   let nonce = nonces[username]
   if (!nonce) {
     res.sendStatus(200)
     return
   }
-  let _user = await getUser(username)
   let hs = digestMessage(_user.username + realm + _user.s_salted_password + nonce)
-  console.log(hs)
+  if (hc !== hs) {
+    res.sendStatus(403)
+    return
+  }
   // GOOD!
   req.session.authorized = true
   req.session.username = _user.username

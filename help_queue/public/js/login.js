@@ -25,11 +25,7 @@ let app = new Vue({
     realm: "IT210 Help Queue",
   },
 
-  // methods
   methods: {
-    mytest() {
-      console.log("test")
-    },
 
     async digestMessage(message) {
       const msgUint8 = new TextEncoder().encode(message);                           // encode as (utf-8) Uint8Array
@@ -41,12 +37,9 @@ let app = new Vue({
 
     async getSalt_c() {
       url = "api/user/salt_c/" + this.user.username
-      console.log("getSalt_c()")
-      await fetch(url).then(response => {
-        console.log("responded!")
+      return await fetch(url).then(response => {
         return response.text()
       }).then(text => {
-        console.log("Got text! Setting salt!!")
         this.salt_c = text
         return text
       }).catch(err => {
@@ -56,7 +49,7 @@ let app = new Vue({
 
     async getSalt_s() {
       url = "api/user/salt_s/" + this.user.username
-      await fetch(url).then(response => {
+      return await fetch(url).then(response => {
         return response.text()
       }).then(text => {
         this.salt_s = text
@@ -69,7 +62,7 @@ let app = new Vue({
     // getNonce()
     async getNonce() {
       url = "api/user/nonce/" + this.user.username
-      await fetch(url).then(response => {
+      return await fetch(url).then(response => {
         return response.text()
       }).then(text => {
         this.nonce = text
@@ -108,9 +101,8 @@ let app = new Vue({
     // register()
     async register() {
       let salt_c = await this.getSalt_c()
-      let c_salted_password = await this.digestMessage(this.user.password + this.salt_c)
-      let c_salted_password_confirm = await this.digestMessage(this.user.c_password + this.salt_c)
-      console.log(c_salted_password)
+      let c_salted_password = await this.digestMessage(this.user.password + salt_c)
+      let c_salted_password_confirm = await this.digestMessage(this.user.c_password + salt_c)
       if (this.user.password != this.user.c_password) {
         this.error = true
         this.error_message = "Passwords must match"
