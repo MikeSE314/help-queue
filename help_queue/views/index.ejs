@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Help Queue | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-wrapper">
+      <ul class="right">
+        <li><a href="/logout">Log out</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <h1>Help Queue</h1>
+    <div id="app">
+      <div class="row">
+        <ul class="left collection col s6">
+          <li class="collection-header">
+            <h4>Passoff List</h4>
+          </li>
+          <li v-for="passoffUser in passoffUsers" class="collection-item">
+            {{ passoffUser.firstname }} {{ passoffUser.lastname }}
+            <% if (admin) { %>
+            <a class="secondary-content" href="#" v-on:click="adminRemovePassoff(passoffUser.username)">
+              remove
+            </a>
+            <% } %>
+            <a v-if="passoffUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removePassoff('<%= username %>')">
+              remove
+            </a>
+          </li>
+          <% if (!admin) { %>
+          <li v-if="!onList" class="collection-item">
+            <a href="#" v-on:click="joinPassoff('<%= username %>')">Join Passoff List</a>
+          </li>
+          <% } %>
+        </ul>
+        <ul class="right collection col s6">
+          <li class="collection-header">
+            <h4>Help List</h4>
+          </li>
+          <li v-for="helpUser in helpUsers" class="collection-item">
+            {{ helpUser.firstname }} {{ helpUser.lastname }}
+            <% if (admin) { %>
+            <a class="secondary-content" href="#" v-on:click="adminRemoveHelp(helpUser.username)">
+              remove
+            </a>
+            <% } %>
+            <a v-if="helpUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removeHelp('<%= username %>')">
+              remove
+            </a>
+          </li>
+          <% if (!admin) { %>
+          <li v-if="!onList" class="collection-item">
+            <a href="#" v-on:click="joinHelp('<%= username %>')">Join Help List</a>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
