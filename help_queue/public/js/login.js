@@ -27,30 +27,71 @@ let app = new Vue({
 
   // methods
   methods: {
+    mytest() {
+      console.log("test")
+    },
+
+    async digestMessage(message) {
+      const msgUint8 = new TextEncoder().encode(message);                           // encode as (utf-8) Uint8Array
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
+      const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+      return hashHex;
+    },
+
+    async getSalt_c() {
+      url = "api/user/salt_c/" + this.user.username
+      console.log("getSalt_c()")
+      await fetch(url).then(response => {
+        console.log("responded!")
+        return response.text()
+      }).then(text => {
+        console.log("Got text! Setting salt!!")
+        this.salt_c = text
+        return text
+      }).catch(err => {
+        console.error(err)
+      })
+    },
+
+    async getSalt_s() {
+      url = "api/user/salt_s/" + this.user.username
+      await fetch(url).then(response => {
+        return response.text()
+      }).then(text => {
+        this.salt_s = text
+        return text
+      }).catch(err => {
+        console.error(err)
+      })
+    },
 
     // getNonce()
-    getNonce() {
-      url = "api/user/nonce"
-      fetch(url, {
-        method: "GET",
-        body: JSON.stringify(this.secureUser),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        return response.json()
-      }).then(json => {
-        this.nonce = json.nonce
+    async getNonce() {
+      url = "api/user/nonce/" + this.user.username
+      await fetch(url).then(response => {
+        return response.text()
+      }).then(text => {
+        this.nonce = text
+        return text
       }).catch(err => {
         console.error(err)
       })
     },
 
     // login()
-    login() {
+    async login() {
+      let nonce = await this.getNonce()
+      let salt_c = await this.getSalt_c()
+      let salt_s = await this.getSalt_s()
+      let c_salted_password = await this.digestMessage(this.user.password + salt_c)
+      let s_salted_password = await this.digestMessage(c_salted_password + salt_s)
+      let hc = await this.digestMessage(this.user.username + this.realm + s_salted_password + nonce)
       this.clearErrors()
       url = "api/user/login"
       fetch(url, {
         method: "PUT",
-        body: JSON.stringify(this.user),
+        body: JSON.stringify({username: this.user.username, hc: hc}),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         if (response.status !== 200) {
@@ -65,12 +106,27 @@ let app = new Vue({
     },
 
     // register()
-    register() {
+    async register() {
+      let salt_c = await this.getSalt_c()
+      let c_salted_password = await this.digestMessage(this.user.password + this.salt_c)
+      let c_salted_password_confirm = await this.digestMessage(this.user.c_password + this.salt_c)
+      console.log(c_salted_password)
+      if (this.user.password != this.user.c_password) {
+        this.error = true
+        this.error_message = "Passwords must match"
+        return
+      }
       this.clearErrors()
       url = "api/user/register"
       fetch(url, {
         method: "POST",
-        body: JSON.stringify(this.user),
+        body: JSON.stringify({
+          username: this.user.username,
+          firstname: this.user.firstname,
+          lastname: this.user.lastname,
+          c_salted_password: c_salted_password,
+          c_salted_password_confirm: c_salted_password_confirm
+        }),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         if (response.status !== 200) {
@@ -99,160 +155,7 @@ let app = new Vue({
       this.view[view] = true
     },
 
-    // getHelpList()
-    getHelpList() {
-      url = "api/help"
-      fetch(url).then(response => {
-        return response.json()
-      }).then(json => {
-        this.helpUsers = json
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // getPassoffList()
-    getPassoffList() {
-      url = "api/passoff"
-      fetch(url).then(response => {
-        return response.json()
-      }).then(json => {
-        this.passoffUsers = json
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // getLists()
-    getLists() {
-      this.getHelpList()
-      this.getPassoffList()
-    },
-
-    // adminRemoveHelp()
-    adminRemoveHelp(username) {
-      url = "api/help/admin/remove/" + username
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        return response.json()
-      }).then(json => {
-        this.helpUsers = json
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // adminRemovePassoff()
-    adminRemovePassoff(username) {
-      url = "api/passoff/admin/remove/" + username
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        return response.json()
-      }).then(json => {
-        this.passoffUsers = json
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // joinHelp()
-    joinHelp() {
-      url = "api/help/add"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        return response.json()
-      }).then(json => {
-        this.helpUsers.push(json)
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // joinPassoff()
-    joinPassoff() {
-      url = "api/passoff/add"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        return response.json()
-      }).then(json => {
-        this.passoffUsers.push(json)
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // removeHelp()
-    removeHelp() {
-      console.log("Helping!")
-      url = "api/help/remove"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        console.log("returned")
-        if (response.status !== 200) {
-          throw new Error("Bad")
-        }
-        this.helpUsers = this.helpUsers.filter(item => item.username !== this.user.username)
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // removePassoff()
-    removePassoff() {
-      url = "api/passoff/remove"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad")
-        }
-        this.passoffUsers = this.passoffUsers.filter(item => item.username !== this.user.username)
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
   },
-
-  // computed
-  computed: {
-
-    onHelpList: function() {
-      return this.helpUsers.some(item => item.username === this.user.username)
-    },
-
-    onPassoffList: function() {
-      return this.passoffUsers.some(item => item.username === this.user.username)
-    },
-
-    onList: function() {
-      return this.onHelpList || this.onPassoffList
-    },
-
-  }
 
 })
 

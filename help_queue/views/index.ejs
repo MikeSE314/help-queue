@@ -30,13 +30,13 @@
               remove
             </a>
             <% } %>
-            <a v-if="passoffUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removePassoff(<%= username %>)">
+            <a v-if="passoffUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removePassoff('<%= username %>')">
               remove
             </a>
           </li>
           <% if (!admin) { %>
           <li v-if="!onList" class="collection-item">
-            <a href="#" v-on:click="joinPassoff(<%= username %>)">Join Passoff List</a>
+            <a href="#" v-on:click="joinPassoff('<%= username %>')">Join Passoff List</a>
           </li>
           <% } %>
         </ul>
@@ -51,13 +51,13 @@
               remove
             </a>
             <% } %>
-            <a v-if="helpUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removeHelp(<%= username %>)">
+            <a v-if="helpUser.username === '<%= username %>'" class="secondary-content" href="#" v-on:click="removeHelp('<%= username %>')">
               remove
             </a>
           </li>
           <% if (!admin) { %>
           <li v-if="!onList" class="collection-item">
-            <a href="#" v-on:click="joinHelp(<%= username %>)">Join Help List</a>
+            <a href="#" v-on:click="joinHelp('<%= username %>')">Join Help List</a>
           </li>
           <% } %>
         </ul>

@@ -1,9 +1,13 @@
-const express = require("express")
-const router = express.Router()
-const User = require("../models/User.js")
-const Cookies = require("cookies")
+let express = require("express")
+let router = express.Router()
+let User = require("../models/User.js")
+let Cookies = require("cookies")
+let crypto = require("crypto")
+
+let realm = "IT210 Help Queue"
 
 // loggedInUsers
+/*
 let loggedInUsers = [
   {
     username: "alice",
@@ -27,7 +31,7 @@ let loggedInUsers = [
     username: "greg",
   },
 ]
-
+*/
 // helpUsers
 let helpUsers = [
   {
@@ -90,6 +94,10 @@ function getSmallUser(user) {
   }
 }
 
+function digestMessage(message) {
+  return crypto.createHash('sha256').update(message).digest('hex')
+}
+
 async function getUser(username) {
   try {
     return await User.findOne({username: username}, (err, user) => {
@@ -112,33 +120,80 @@ function validateToken(req) {
   return req.session.authorized || false
 }
 
+function generateSalt() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+}
+
+let salts_c = {}
+
+// salt_c
+router.get('/user/salt_c/:username', async (req, res) => {
+  let username = req.params.username
+  let salt_c = salts_c[username]
+  if (!salt_c) {
+    salt_c = generateSalt()
+    salts_c[username] = salt_c
+  }
+  res.send(salt_c)
+})
+
+// salt_s
+router.get('/user/salt_s/:username', async (req, res) => {
+  let username = req.params.username
+  let _user = await getUser(username)
+  if (!_user) {
+    res.sendStatus(500)
+    return
+  }
+  res.send(_user.salt_s)
+})
+
+nonces = {}
+
+// nonce
+router.get('/user/nonce/:username', async (req, res) => {
+  let username = req.params.username
+  let nonce = generateSalt()
+  nonces[username] = nonce
+  res.send(nonce)
+})
+
 // Register
 router.post('/user/register', async (req, res) => {
   let username = req.body.username
-  if (!User.isValid(req.body)) {
+  let firstname = req.body.firstname
+  let lastname = req.body.lastname
+  let c_salted_password = req.body.c_salted_password
+  let c_salted_password_confirm = req.body.c_salted_password_confirm
+  let salt_c = salts_c[username]
+  if (!salt_c) {
     res.sendStatus(521)
     return
   }
-  if (req.body.password !== req.body.c_password) {
+  if (req.body.c_salted_password !== req.body.c_salted_password_confirm) {
     res.sendStatus(522)
     return
   }
+  let salt_s = generateSalt()
+  let s_salted_password = digestMessage(c_salted_password + salt_s)
   let user = new User({
-    username: req.body.username,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    password: req.body.password,
+    username: username,
+    firstname: firstname,
+    lastname: lastname,
+    s_salted_password: s_salted_password,
+    salt_c: salt_c,
+    salt_s: salt_s,
     admin: false
   })
   try {
     await user.save()
     // GOOD!
     req.session.authorized = true
-    req.session.username = username
-    req.session.firstname = firstname
-    req.session.lastname = lastname
+    req.session.username = user.username
+    req.session.firstname = user.firstname
+    req.session.lastname = user.lastname
     req.session.admin = false
-    loggedInUsers.push(username)
+    // loggedInUsers.push(username)
     res.sendStatus(200)
   } catch (err) {
     console.error(err)
@@ -149,20 +204,23 @@ router.post('/user/register', async (req, res) => {
 // Login
 router.put('/user/login', async (req, res) => {
   let username = req.body.username
-  let password = req.body.password
-  let _user = await getUser(username)
-  if (!_user || _user.password !== password) {
-    res.sendStatus(403)
+  let hc = req.body.hc
+  console.log(hc)
+  let nonce = nonces[username]
+  if (!nonce) {
+    res.sendStatus(200)
     return
   }
+  let _user = await getUser(username)
+  let hs = digestMessage(_user.username + realm + _user.s_salted_password + nonce)
+  console.log(hs)
   // GOOD!
   req.session.authorized = true
   req.session.username = _user.username
   req.session.firstname = _user.firstname
   req.session.lastname = _user.lastname
   req.session.admin = _user.admin
-  loggedInUsers.push(getSmallUser(req.session))
-  // TODO redirect
+  // loggedInUsers.push(getSmallUser(req.session))
   res.sendStatus(200)
 })
 
@@ -170,6 +228,15 @@ router.put('/user/login', async (req, res) => {
 router.get('/user/check_token', async (req, res) => {
   if (validateToken(req)) {
     res.sendStatus(200)
+    return
+  }
+  res.sendStatus(401)
+})
+
+// Get Username
+router.get('/user/get_username', async (req, res) => {
+  if (validateToken(req)) {
+    res.send(req.session.username)
     return
   }
   res.sendStatus(401)
@@ -188,9 +255,10 @@ router.get("/user/token/cheat", async (req, res) => {
 // Logout              | put  | /user/logout
 router.put('/user/logout', async (req, res) => {
   if (validateToken(req)) {
-    let username = req.session.username
+    req.session.authorized = false
+    // let username = req.session.username
     res.sendStatus(200)
-    loggedInUsers = loggedInUsers.filter(item => item.username !== username)
+    // loggedInUsers = loggedInUsers.filter(item => item.username !== username)
     return
   }
   res.sendStatus(401)
@@ -203,6 +271,10 @@ router.put('/help/add', async (req, res) => {
     return
   }
   let username = req.session.username
+  if (passoffUsers.some(item => item.username === username)) {
+    res.sendStatus(500)
+    return
+  }
   if (helpUsers.some(item => item.username === username)) {
     res.sendStatus(500)
     return
@@ -249,8 +321,12 @@ router.put('/passoff/add', async (req, res) => {
     res.sendStatus(401)
     return
   }
-  let username = req.body.username
+  let username = req.session.username
   if (passoffUsers.some(item => item.username === username)) {
+    res.sendStatus(500)
+    return
+  }
+  if (helpUsers.some(item => item.username === username)) {
     res.sendStatus(500)
     return
   }
