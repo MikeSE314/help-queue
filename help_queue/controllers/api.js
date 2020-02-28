@@ -95,8 +95,11 @@ function getSmallUser(user) {
 }
 
 function digestMessage(message) {
-  return crypto.createHash('sha256').update(message).digest('hex')
+  return crypto.createHash("sha256").update(message).digest("hex")
 }
+
+User.findOne({username: "mikee314"})
+console.log("???")
 
 async function getUser(username) {
   try {
@@ -127,7 +130,7 @@ function generateSalt() {
 let salts_c = {}
 
 // salt_c
-router.get('/user/salt_c/:username', async (req, res) => {
+router.get("/user/salt_c/:username", async (req, res) => {
   let username = req.params.username
   let _user = await getUser(username)
   if (_user) {
@@ -143,7 +146,7 @@ router.get('/user/salt_c/:username', async (req, res) => {
 })
 
 // salt_s
-router.get('/user/salt_s/:username', async (req, res) => {
+router.get("/user/salt_s/:username", async (req, res) => {
   let username = req.params.username
   let _user = await getUser(username)
   if (!_user) {
@@ -156,7 +159,7 @@ router.get('/user/salt_s/:username', async (req, res) => {
 nonces = {}
 
 // nonce
-router.get('/user/nonce/:username', async (req, res) => {
+router.get("/user/nonce/:username", async (req, res) => {
   let username = req.params.username
   let nonce = generateSalt()
   nonces[username] = nonce
@@ -164,7 +167,7 @@ router.get('/user/nonce/:username', async (req, res) => {
 })
 
 // Register
-router.post('/user/register', async (req, res) => {
+router.post("/user/register", async (req, res) => {
   let username = req.body.username
   let firstname = req.body.firstname
   let lastname = req.body.lastname
@@ -207,7 +210,7 @@ router.post('/user/register', async (req, res) => {
 })
 
 // Login
-router.put('/user/login', async (req, res) => {
+router.put("/user/login", async (req, res) => {
   let username = req.body.username
   let _user = await getUser(username)
   if (!_user) {
@@ -236,7 +239,7 @@ router.put('/user/login', async (req, res) => {
 })
 
 // Check Token
-router.get('/user/check_token', async (req, res) => {
+router.get("/user/check_token", async (req, res) => {
   if (validateToken(req)) {
     res.sendStatus(200)
     return
@@ -245,7 +248,7 @@ router.get('/user/check_token', async (req, res) => {
 })
 
 // Get Username
-router.get('/user/get_username', async (req, res) => {
+router.get("/user/get_username", async (req, res) => {
   if (validateToken(req)) {
     res.send(req.session.username)
     return
@@ -264,7 +267,7 @@ router.get("/user/token/cheat", async (req, res) => {
 
 
 // Logout              | put  | /user/logout
-router.put('/user/logout', async (req, res) => {
+router.put("/user/logout", async (req, res) => {
   if (validateToken(req)) {
     req.session.authorized = false
     // let username = req.session.username
@@ -276,7 +279,7 @@ router.put('/user/logout', async (req, res) => {
 })
 
 // Add to help         | put  | /help/add
-router.put('/help/add', async (req, res) => {
+router.put("/help/add", async (req, res) => {
   if (!validateToken(req)) {
     res.sendStatus(401)
     return
@@ -296,7 +299,7 @@ router.put('/help/add', async (req, res) => {
 })
 
 // Remove from help    | put  | /help/remove
-router.put('/help/remove', async (req, res) => {
+router.put("/help/remove", async (req, res) => {
   if (!validateToken(req)) {
     res.sendStatus(401)
     return
@@ -322,12 +325,12 @@ router.put("/help/admin/remove/:u_username", async (req, res) => {
 })
 
 // Get help list       | get  | /help
-router.get('/help/', async (req, res) => {
+router.get("/help/", async (req, res) => {
   res.send(JSON.stringify(helpUsers))
 })
 
 // Add to passoff         | put  | /passoff/add
-router.put('/passoff/add', async (req, res) => {
+router.put("/passoff/add", async (req, res) => {
   if (!validateToken(req)) {
     res.sendStatus(401)
     return
@@ -346,7 +349,7 @@ router.put('/passoff/add', async (req, res) => {
 })
 
 // Remove from passoff    | put  | /passoff/remove
-router.put('/passoff/remove', async (req, res) => {
+router.put("/passoff/remove", async (req, res) => {
   if (!validateToken(req)) {
     res.sendStatus(401)
     return
@@ -372,7 +375,7 @@ router.put("/passoff/admin/remove/:u_username", async (req, res) => {
 })
 
 // Get passoff list       | get  | /passoff
-router.get('/passoff/', async (req, res) => {
+router.get("/passoff/", async (req, res) => {
   res.send(JSON.stringify(passoffUsers))
 })
 
