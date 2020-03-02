@@ -98,26 +98,54 @@ function digestMessage(message) {
   return crypto.createHash("sha256").update(message).digest("hex")
 }
 
-User.findOne({username: "mikee314"})
-console.log("???")
-
 async function getUser(username) {
-  try {
-    return await User.findOne({username: username}, (err, user) => {
-      if (err) {
-        console.error(err)
-        return false
-      }
-      if (user === {} || user === null) {
-        return false
-      }
-      return user
-    })
-  } catch (err) {
-    console.error(err)
+  console.log("getUser:: awaiting...")
+  // let user = await User.findOne({username: username}, (err, user) => {
+  //   // return await User.findOne({username: username}, (err, user) => {
+  //   console.log("getUser:: vvv")
+  //   console.log(user)
+  //   console.log("getUser:: ^^^")
+  //   if (err) {
+  //     console.error(err)
+  //     return false
+  //   }
+  //   if (user === {} || user === null) {
+  //     return false
+  //   }
+  //   return user
+  // })
+  let query = User.findOne({username: username})
+  return await query.then(user => {
+    return user
+  }).catch(err => {
     return false
-  }
+  })
 }
+
+/*
+async function test() {
+  let username = "test2"
+  let user = new User({
+    username: username,
+    firstname: "Test",
+    lastname: "McTest",
+    s_salted_password: "test",
+    salt_c: "test_c",
+    salt_s: "test_s",
+    admin: false
+  })
+  try {
+    await user.save()
+  } catch(err) {
+    console.error(err)
+    return
+  }
+  let _user = await getUser(username)
+  console.log(_user)
+}
+
+test()
+*/
 
 function validateToken(req) {
   return req.session.authorized || false
@@ -134,14 +162,24 @@ router.get("/user/salt_c/:username", async (req, res) => {
   let username = req.params.username
   let _user = await getUser(username)
   if (_user) {
-    res.send(_user.salt_c)
+    // user exists
+    // send existing salt
+    console.log("salt_c::1")
+    console.log(_user)
+    let salt_c = _user.salt_c
+    salts_c[username] = salt_c
+    res.send(salt_c)
     return
   }
   let salt_c = salts_c[username]
   if (!salt_c) {
+    // first-time user
+    // generate new salt
+    console.log("salt_c::2")
     salt_c = generateSalt()
     salts_c[username] = salt_c
   }
+  console.log("salt_c::3")
   res.send(salt_c)
 })
 
@@ -176,6 +214,8 @@ router.post("/user/register", async (req, res) => {
   let salt_c = salts_c[username]
   if (!salt_c) {
     res.sendStatus(521)
+    console.log(salts_c)
+    // user should have requested a salt first. See /user/salt_c/:username
     return
   }
   if (req.body.c_salted_password !== req.body.c_salted_password_confirm) {

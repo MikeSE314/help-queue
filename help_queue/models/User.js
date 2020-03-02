@@ -3,33 +3,41 @@
 let db = require("../db_connector")
 
 class User {
-    constructor(data) {
-        this.username = data.username
-        this.firstname = data.firstname
-        this.lastname = data.lastname
-        this.s_salted_password = data.s_salted_password
-        this.salt_c = data.salt_c
-        this.salt_s = data.salt_s
-        this.admin = data.admin
-    }
-    async save() {
-        let sql = "INSERT INTO `Users` SET ?"
-        return await db.query(sql, this, (err, res, fields) => {
-            if (err) throw err
-            return true
-        })
-    }
+  constructor(data) {
+    this.username = data.username
+    this.firstname = data.firstname
+    this.lastname = data.lastname
+    this.s_salted_password = data.s_salted_password
+    this.salt_c = data.salt_c
+    this.salt_s = data.salt_s
+    this.admin = data.admin
+  }
+  async save() {
+    let sql = "INSERT INTO `Users` SET ?"
+    let query = new Promise((resolve, reject) => {
+      db.query(sql, this, (err, res, fields) => {
+        if (err) throw err
+        console.log(res)
+        resolve(res)
+      })
+    })
+    return await query.then(res => {
+      return res
+    }).catch(err => {
+      throw err
+    })
+  }
 }
 
-User.findOne = async (data) => {
-    console.log("findOne(data)")
-    let sql = "SELECT * FROM Users WHERE ?"
-    return await db.query(sql, data, (err, res, fields) => {
-        let user;
-        console.log(res)
-        console.log("returning")
-        return (err, user)
+User.findOne = (data) => {
+  let sql = "SELECT * FROM `Users` WHERE ?"
+  let query = new Promise((resolve, reject) => {
+    db.query(sql, data, (err, res, fields) => {
+      if (err) throw err
+      resolve(res[0])
     })
+  })
+  return query
 }
 
 // let userSchema = new db.Schema({

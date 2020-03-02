@@ -188,7 +188,7 @@ let app = new Vue({
 
 })
 
-let socket = io.connect("http://localhost:8001")
+let socket = io.connect("https://192.168.90.6:1337")
 socket.on("updateList", (data) => {
   app.getLists()
 })

@@ -72,11 +72,18 @@ app.use((req, res, next) => {
 
 // module.exports = app
 
-let http = require("http")
+let https = require("https")
+let fs = require('fs');
+
 
 // app.set("port", port)
 
-let server = http.createServer(app)
+let options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+}
+
+let server = https.createServer(options, app)
 let io = require("socket.io").listen(server)
 
 io.on("connection", (socket) => {
