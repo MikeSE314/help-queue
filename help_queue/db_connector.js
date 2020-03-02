@@ -1,5 +1,5 @@
 let mongoose = require("mongoose")
 
-mongoose.connect("mongodb://127.0.0.1:27017/help_queue", {useUnifiedTopology: true, useNewUrlParser: true})
+mongoose.connect("mongodb+srv://db_user:8mnjhnm48d5dw62hnb5j@help-queue-p0xtr.mongodb.net/help_queue?retryWrites=true&w=majority", {useUnifiedTopology: true, useNewUrlParser: true})
 
 module.exports = mongoose
