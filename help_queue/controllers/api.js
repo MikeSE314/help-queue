@@ -30,10 +30,15 @@ let passoffUsers = [
 // Get passoff list    | get  | /passoff
 
 async function getUser(netid) {
+  console.log("getUser() 1")
   return await User.findOne({netid: netid}, (err, user) => {
+    console.log("getUser() 2")
     if (err) throw err
+    console.log("getUser() 3")
     return user
+    console.log("getUser() 4")
   })
+  console.log("getUser() 5")
 }
 
 function getSmallUser(user) {
@@ -89,9 +94,13 @@ router.put("/admin/logout", async (req, res) => {
 })
 
 router.get("/user/:netid", async (req, res) => {
+  console.log("/user/:netid 1")
   let user = await getUser(req.params.netid)
+  console.log("/user/:netid 2")
   console.log(user)
+  console.log("/user/:netid 3")
   res.send(user)
+  console.log("/user/:netid 4")
 })
 
 // Add to help         | put  | /help/add
