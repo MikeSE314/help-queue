@@ -130,3 +130,8 @@ dmypy.json
 
 # Node modules
 node_modules
+
+# vim hidden files
+.*.un~
+.*.swp
+.*.swo

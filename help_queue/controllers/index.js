@@ -3,11 +3,7 @@ const router = express.Router()
 
 /* GET home page. */
 router.get("/", async (req, res, next) => {
-  if (!req.session.authorized) {
-    res.redirect("/login")
-    return
-  }
-  res.render("index", {admin: req.session.admin, username: req.session.username})
+  res.render("index", {admin: req.session.authorized})
 })
 
 router.get("/login", async (req, res, next) => {
