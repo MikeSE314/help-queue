@@ -30,15 +30,10 @@ let passoffUsers = [
 // Get passoff list    | get  | /passoff
 
 async function getUser(netid) {
-  console.log("getUser() 1")
   return await User.findOne({netid: netid}, (err, user) => {
-    console.log("getUser() 2")
     if (err) throw err
-    console.log("getUser() 3")
     return user
-    console.log("getUser() 4")
   })
-  console.log("getUser() 5")
 }
 
 function getSmallUser(user) {
@@ -54,12 +49,12 @@ function makeNonce() {
 }
 
 nonce = makeNonce()
-console.log(nonce)
+console.log(nonce) // KEEPME
 
 // nonce
 router.get("/admin/nonce", async (req, res) => {
   nonce = makeNonce()
-  console.log(nonce)
+  console.log(nonce) // KEEPME
   res.sendStatus(200)
 })
 
@@ -72,12 +67,12 @@ router.put("/admin/login", async (req, res) => {
   }
   if (nonce !== u_nonce) {
     nonce = makeNonce()
-    console.log(nonce)
+    console.log(nonce) // KEEPME
     res.sendStatus(403)
     return
   }
   nonce = makeNonce()
-  console.log(nonce)
+  console.log(nonce) // KEEPME
   req.session.authorized = true
   res.sendStatus(200)
 })
@@ -94,13 +89,8 @@ router.put("/admin/logout", async (req, res) => {
 })
 
 router.get("/user/:netid", async (req, res) => {
-  console.log("/user/:netid 1")
   let user = await getUser(req.params.netid)
-  console.log("/user/:netid 2")
-  console.log(user)
-  console.log("/user/:netid 3")
   res.send(user)
-  console.log("/user/:netid 4")
 })
 
 // Add to help         | put  | /help/add
@@ -158,10 +148,7 @@ router.put("/help/admin/remove", async (req, res) => {
 // Remove from passoff    | put  | /passoff/remove
 router.put("/passoff/admin/remove", async (req, res) => {
   let netid = req.body.netid
-  console.log(netid)
-  console.log(passoffUsers)
   passoffUsers = passoffUsers.filter(item => item.netid !== netid)
-  console.log(passoffUsers)
   res.sendStatus(200)
 })
 
