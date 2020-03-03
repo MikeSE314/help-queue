@@ -7,7 +7,6 @@ let password = process.env.DB_PW || ""
 console.log("using password " + password)
 
 mongoose.connect("mongodb+srv://db_user:" + password + "@help-queue-p0xtr.mongodb.net/help_queue?retryWrites=true&w=majority", {useUnifiedTopology: true, useNewUrlParser: true})
->>>>>>> 7ab6a93b0b21ee66017be17cdceabac145cfa171
 
 module.exports = connection
 
