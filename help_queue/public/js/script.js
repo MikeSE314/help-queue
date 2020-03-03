@@ -4,13 +4,14 @@ let app = new Vue({
   // data
   data: {
 
-    username: "notset",
+    netid: "notset",
 
     error: false,
     error_message: "",
     helpUsers: [],
     passoffUsers: [],
-    realm: "IT210 Help Queue",
+    set: false,
+    user: {},
   },
 
   // methods
@@ -47,11 +48,11 @@ let app = new Vue({
     },
 
     // adminRemoveHelp()
-    adminRemoveHelp(username) {
-      url = "api/help/admin/remove/" + username
+    adminRemoveHelp(netid) {
+      url = "api/help/admin/remove"
       fetch(url, {
         method: "PUT",
-        body: JSON.stringify(this.user),
+        body: JSON.stringify({netid: netid}),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         if (response.status !== 200) {
@@ -64,11 +65,11 @@ let app = new Vue({
     },
 
     // adminRemovePassoff()
-    adminRemovePassoff(username) {
-      url = "api/passoff/admin/remove/" + username
+    adminRemovePassoff(netid) {
+      url = "api/passoff/admin/remove"
       fetch(url, {
         method: "PUT",
-        body: JSON.stringify(this.user),
+        body: JSON.stringify({netid: netid}),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         if (response.status !== 200) {
@@ -83,6 +84,8 @@ let app = new Vue({
     // joinHelp()
     joinHelp() {
       url = "api/help/add"
+      console.log(this.user)
+      console.log("?")
       fetch(url, {
         method: "PUT",
         body: JSON.stringify(this.user),
@@ -110,12 +113,10 @@ let app = new Vue({
 
     // removeHelp()
     removeHelp() {
-      url = "api/help/remove"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
+      url = "api/help/remove/" + this.netid
+      console.log(url)
+      fetch(url).then(response => {
+        console.log(response)
         if (response.status !== 200) {
           throw new Error("Bad")
         }
@@ -127,38 +128,68 @@ let app = new Vue({
 
     // removePassoff()
     removePassoff() {
-      url = "api/passoff/remove"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
+      url = "api/passoff/remove/" + this.netid
+      fetch(url).then(response => {
         if (response.status !== 200) {
           throw new Error("Bad")
         }
-        // this.passoffUsers = this.passoffUsers.filter(item => item.username !== this.user.username)
         socket.emit("updateList")
       }).catch(err => {
         console.error(err)
       })
     },
 
-    // checkAuthentication()
-    checkAuthentication() {
-      url = "api/user/check_token/" + this.token + "/" + this.username
-    },
-
-    // getUsername()
-    getUsername() {
-      url = "api/user/get_username"
-      fetch(url).then(response => {
-        return response.text()
-      }).then(text => {
-        this.username = text
+    async getName() {
+      url = "api/user/" + this.netid
+      await fetch(url).then(response => {
+        return response.json()
+      }).then(json => {
+        this.user = {
+          netid: json.netid,
+          firstname: json.firstname,
+          lastname: json.lastname
+        }
+        console.log(json)
+        if (json) {
+          localStorage.setItem("netid", json.netid)
+          localStorage.setItem("firstname", json.firstname)
+          localStorage.setItem("lastname", json.lastname)
+        }
       }).catch(err => {
         console.error(err)
       })
     },
+
+    async setup() {
+      await this.getName()
+      this.getStorage()
+      // get first and last names
+      // store them in local storage
+      // check that it's set up
+    },
+
+    check() {
+
+    },
+
+    getStorage() {
+      this.netid = localStorage.getItem("netid")
+      firstname = localStorage.getItem("firstname")
+      lastname = localStorage.getItem("lastname")
+      this.user = {
+        netid: this.netid,
+        firstname: firstname,
+        lastname: lastname
+      }
+      console.log(this.set)
+      this.set = false
+      if (firstname) {
+        this.set = true
+      }
+      console.log(firstname)
+      console.log(this.set)
+    },
+
 
   },
 
@@ -166,11 +197,11 @@ let app = new Vue({
   computed: {
 
     onHelpList: function() {
-      return this.helpUsers.some(item => item.username === this.username)
+      return this.helpUsers.some(item => item.netid === this.netid)
     },
 
     onPassoffList: function() {
-      return this.passoffUsers.some(item => item.username === this.username)
+      return this.passoffUsers.some(item => item.netid === this.netid)
     },
 
     onList: function() {
@@ -182,8 +213,8 @@ let app = new Vue({
   // created
   created: function() {
     // this.checkAuthentication()
-    this.getUsername()
     this.getLists()
+    this.getStorage()
   },
 
 })
