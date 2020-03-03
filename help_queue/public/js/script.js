@@ -84,8 +84,6 @@ let app = new Vue({
     // joinHelp()
     joinHelp() {
       url = "api/help/add"
-      console.log(this.user)
-      console.log("?")
       fetch(url, {
         method: "PUT",
         body: JSON.stringify(this.user),
@@ -114,9 +112,7 @@ let app = new Vue({
     // removeHelp()
     removeHelp() {
       url = "api/help/remove/" + this.netid
-      console.log(url)
       fetch(url).then(response => {
-        console.log(response)
         if (response.status !== 200) {
           throw new Error("Bad")
         }
@@ -140,47 +136,28 @@ let app = new Vue({
     },
 
     async getName() {
-      console.log("g1")
       url = "api/user/" + this.netid
-      console.log("g2")
       await fetch(url).then(response => {
-        console.log("g3")
         return response.json()
-        console.log("g4")
       }).then(json => {
-        console.log("g5")
         this.user = {
           netid: json.netid,
           firstname: json.firstname,
           lastname: json.lastname
         }
-        console.log("g10")
-        console.log(json)
-        console.log("g11")
         if (json) {
-          console.log("g12")
           localStorage.setItem("netid", json.netid)
-          console.log("g13")
           localStorage.setItem("firstname", json.firstname)
-          console.log("g14")
           localStorage.setItem("lastname", json.lastname)
-          console.log("g15")
         }
-        console.log("g16")
       }).catch(err => {
-        console.log("g17")
         console.error(err)
-        console.log("g18")
       })
-      console.log("g19")
     },
 
     async setup() {
-      console.log("setting up")
       await this.getName()
-      console.log("2")
       this.getStorage()
-      console.log("3")
       // get first and last names
       // store them in local storage
       // check that it's set up
@@ -199,13 +176,10 @@ let app = new Vue({
         firstname: firstname,
         lastname: lastname
       }
-      console.log(this.set)
       this.set = false
       if (firstname) {
         this.set = true
       }
-      console.log(firstname)
-      console.log(this.set)
     },
 
 
@@ -237,7 +211,7 @@ let app = new Vue({
 
 })
 
-let socket = io.connect("http://192.168.90.6:1337")
+let socket = io.connect("/")
 socket.on("updateList", (data) => {
   app.getLists()
 })

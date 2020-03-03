@@ -24,7 +24,7 @@ router.get("/register", async (req, res, next) => {
 
 router.get("/logout", async (req, res, next) => {
   req.session.authorized = false
-  res.redirect("/login")
+  res.redirect("/")
 })
 
 module.exports = router

@@ -4,14 +4,18 @@
   <meta charset="utf-8">
   <title>Help Queue | Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <nav>
     <div class="nav-wrapper">
       <ul class="right">
+        <% if (admin) { %>
         <li><a href="/logout">Log out</a></li>
+        <% } else { %>
+        <li><a href="/login">Admin</a></li>
+        <% } %>
       </ul>
     </div>
   </nav>
@@ -30,10 +34,11 @@
               <a class="secondary-content" href="#" v-on:click="adminRemovePassoff(passoffUser.netid)">
                 remove
               </a>
-              <% } %>
+              <% } else { %>
               <a v-if="passoffUser.netid === netid" class="secondary-content" href="#" v-on:click="removePassoff()">
                 remove
               </a>
+              <% } %>
             </li>
             <% if (!admin) { %>
             <li v-if="!onList" class="collection-item">
@@ -51,10 +56,11 @@
               <a class="secondary-content" href="#" v-on:click="adminRemoveHelp(helpUser.netid)">
                 remove
               </a>
-              <% } %>
+              <% } else { %>
               <a v-if="helpUser.netid === netid" class="secondary-content" href="#" v-on:click="removeHelp()">
                 remove
               </a>
+              <% } %>
             </li>
             <% if (!admin) { %>
             <li v-if="!onList" class="collection-item">

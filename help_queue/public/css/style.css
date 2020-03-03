@@ -1,5 +1,70 @@
-body {
+:root {
+    /* variations of your primary color */
+    --primary: #1e88e5 !important;
+    --primary-light:  #6ab7ff !important;
+    --primary-dark:  #005cb2 !important;
+    --primary-text:  #000000 !important;
+    --primary-text-color:  #000000 !important;
+
+    /* variations of your secondary color */
+    --secondary:  #ff4081 !important;
+    --secondary-light:  #ff79b0 !important;
+    --secondary-dark:  #c60055 !important;
+    --secondary-text:  #000000 !important;
+    --secondary-text-color:  #000000 !important;
 }
 
-a {
+nav {
+    background-color: var(--primary);
+}
+
+[type="checkbox"]:checked+span:not(.lever):before {
+    border-right-color: var(--secondary);
+    border-bottom-color: var(--secondary);
+}
+
+.btn:hover, .btn-large:hover, .btn-small:hover {
+    background-color: var(--secondary-light);
+}
+
+.switch label input[type=checkbox]:checked+.lever {
+    background-color: var(--secondary-light);
+}
+
+.switch label input[type=checkbox]:checked+.lever:after {
+    background-color: var(--secondary);
+}
+
+.btn, .btn-large, .btn-small {
+    background-color: var(--secondary);
+}
+
+#add-btn {
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+
+.extra-small {
+    height: 25px;
+    line-height: 25px;
+}
+
+[type="checkbox"]:checked+.task {
+    text-decoration: line-through;
+}
+
+[type="checkbox"]:not(:checked)+.task {
+    color: var(--primary-text);
+    transition: .2s;
+}
+
+.extra-hidden {
+     border: 0;
+     padding: 0;
+     margin: 0;
+}
+
+.nav-padding {
+     padding-left: 15px;
+     padding-right: 15px;
 }
