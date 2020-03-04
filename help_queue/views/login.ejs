@@ -8,12 +8,18 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <nav></nav>
+  <nav>
+    <div class="nav-wrapper">
+      <ul class="right">
+        <li><a href="/">Home</a></li>
+      </ul>
+    </div>
+  </nav>
   <div class="container">
     <h1>Help Queue</h1>
     <div id="app">
         <form class="row" v-on:submit.prevent="login">
-          <input required type="text" v-model="nonce" placeholder="Code">
+          <input required type="password" v-model="nonce" placeholder="Code">
           <button type="submit" class="btn waves-effect" >Log in</button>
         </form>
       <div v-if="error">

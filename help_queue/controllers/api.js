@@ -47,7 +47,7 @@ function getSmallUser(user) {
 }
 
 function makeNonce() {
-  nonce = Math.random().toString(36).substring(2, 6)
+  nonce = process.env.ADMIN_SECRET || Math.random().toString(36).substring(2, 6)
   console.log(nonce)
 }
 
