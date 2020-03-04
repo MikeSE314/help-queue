@@ -2,6 +2,8 @@ let express = require("express")
 let router = express.Router()
 let User = require("../models/User.js")
 
+let nonce
+
 let helpUsers = [
   {
     netid: "a",
@@ -45,16 +47,15 @@ function getSmallUser(user) {
 }
 
 function makeNonce() {
-  return Math.random().toString(36).substring(2, 6)
+  nonce = Math.random().toString(36).substring(2, 6)
+  console.log(nonce)
 }
 
-nonce = makeNonce()
-console.log(nonce) // KEEPME
+makeNonce()
 
 // nonce
 router.get("/admin/nonce", async (req, res) => {
-  nonce = makeNonce()
-  console.log(nonce) // KEEPME
+  makeNonce()
   res.sendStatus(200)
 })
 
@@ -66,15 +67,21 @@ router.put("/admin/login", async (req, res) => {
     return
   }
   if (nonce !== u_nonce) {
-    nonce = makeNonce()
-    console.log(nonce) // KEEPME
+    makeNonce()
     res.sendStatus(403)
     return
   }
-  nonce = makeNonce()
-  console.log(nonce) // KEEPME
+  makeNonce()
   req.session.authorized = true
   res.sendStatus(200)
+})
+
+router.get("/admin/test", async (req, res) => {
+  if (req.session.authorized) {
+    res.sendStatus(200)
+  } else {
+    res.sendStatus(401)
+  }
 })
 
 // Logout              | put  | /user/logout
@@ -89,7 +96,9 @@ router.put("/admin/logout", async (req, res) => {
 })
 
 router.get("/user/:netid", async (req, res) => {
-  let user = await getUser(req.params.netid)
+  let netid = req.params.netid
+  console.log(netid)
+  let user = await getUser(netid)
   res.send(user)
 })
 

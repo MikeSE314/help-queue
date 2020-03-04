@@ -83,7 +83,11 @@ io.on("connection", (socket) => {
   socket.on("updateList", (data) => {
     io.emit("updateList")
   })
+  socket.on("playSound", (data) => {
+    io.emit("playSound")
+  })
 })
+
 
 
 module.exports = server
