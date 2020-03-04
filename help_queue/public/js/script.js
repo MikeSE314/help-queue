@@ -51,6 +51,11 @@ let app = new Vue({
 
     // adminRemoveHelp()
     adminRemoveHelp(netid) {
+      this.helpUsers.map(item => {
+        if (item.netid === netid) {
+          console.log(`Removing %c${item.firstname} ${item.lastname} %cfrom Help List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+        }
+      })
       url = "api/help/admin/remove"
       fetch(url, {
         method: "PUT",
@@ -70,7 +75,7 @@ let app = new Vue({
     adminRemovePassoff(netid) {
       this.passoffUsers.map(item => {
         if (item.netid === netid) {
-          console.log(`Removing ${item.firstname} ${item.lastname}`)
+          console.log(`Removing %c${item.firstname} ${item.lastname} %cfrom Passoff List`, 'font-weight: bold; color: white;', 'font-weight: normal')
         }
       })
       url = "api/passoff/admin/remove"
@@ -90,11 +95,6 @@ let app = new Vue({
 
     // joinHelp()
     joinHelp() {
-      this.helpUsers.map(item => {
-        if (item.netid === netid) {
-          console.log(`Removing ${item.firstname} ${item.lastname}`)
-        }
-      })
       url = "api/help/add"
       fetch(url, {
         method: "PUT",
