@@ -12,6 +12,8 @@ let app = new Vue({
     passoffUsers: [],
     set: false,
     user: {},
+    admin: false,
+    audio: new Audio('audio/chime.mp3'),
   },
 
   // methods
@@ -49,6 +51,11 @@ let app = new Vue({
 
     // adminRemoveHelp()
     adminRemoveHelp(netid) {
+      this.helpUsers.map(item => {
+        if (item.netid === netid) {
+          console.log(`Removing %c${item.firstname} ${item.lastname} %cfrom Help List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+        }
+      })
       url = "api/help/admin/remove"
       fetch(url, {
         method: "PUT",
@@ -66,6 +73,11 @@ let app = new Vue({
 
     // adminRemovePassoff()
     adminRemovePassoff(netid) {
+      this.passoffUsers.map(item => {
+        if (item.netid === netid) {
+          console.log(`Removing %c${item.firstname} ${item.lastname} %cfrom Passoff List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+        }
+      })
       url = "api/passoff/admin/remove"
       fetch(url, {
         method: "PUT",
@@ -90,6 +102,7 @@ let app = new Vue({
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         socket.emit("updateList")
+        socket.emit("playSound")
       }).catch(err => {
         console.error(err)
       })
@@ -104,6 +117,7 @@ let app = new Vue({
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         socket.emit("updateList")
+        socket.emit("playSound")
       }).catch(err => {
         console.error(err)
       })
@@ -182,6 +196,23 @@ let app = new Vue({
       }
     },
 
+    play() {
+      if (this.admin) {
+        this.audio.play()
+      }
+    },
+
+    getAdmin() {
+      url = "api/admin/test"
+      fetch(url).then(response => {
+        if (response.status === 200) {
+          this.admin = true
+        }
+      }).catch(err => {
+        console.error(err)
+      })
+    }
+
 
   },
 
@@ -207,6 +238,7 @@ let app = new Vue({
     // this.checkAuthentication()
     this.getLists()
     this.getStorage()
+    this.getAdmin()
   },
 
 })
@@ -214,5 +246,9 @@ let app = new Vue({
 let socket = io.connect("/")
 socket.on("updateList", (data) => {
   app.getLists()
+})
+
+socket.on("playSound", (data) => {
+  app.play()
 })
 

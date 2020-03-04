@@ -20,7 +20,11 @@
     </div>
   </nav>
   <div class="container">
-    <h1>Help Queue</h1>
+    <h1>Help Queue
+        <% if (admin) { %>
+        | Admin
+        <% } %>
+    </h1>
     <div id="app">
       <div v-if="set">
         <div class="row">
