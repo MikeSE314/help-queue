@@ -5,6 +5,8 @@
   <title>Help Queue | Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="css/primary_<%= p %>.css">
+  <link rel="stylesheet" href="css/secondary_<%= s %>.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -79,6 +81,9 @@
           <input required type="text" id="netid" v-model="netid" placeholder="BYU Net ID">
           <button type="submit" class="btn waves-effect">Link</button>
         </form>
+        <div v-if="error_message">
+          {{ error_message }}
+        </div>
       </div>
     </div>
   </div>

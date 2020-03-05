@@ -1,0 +1,6 @@
+:root {
+    /* variations of your primary color */
+    --primary:       #880e4f !important;
+    --primary-light: #bc477b !important;
+    --primary-dark:  #560027 !important;
+}

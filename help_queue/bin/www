@@ -4,6 +4,8 @@
  * Module dependencies.
  */
 
+// require('dotenv').load()
+require('dotenv').config()
 let server = require("../server")
 // server defines server
 // server defines app
@@ -27,8 +29,8 @@ let debug = require('debug')('help-queue:server')
 server.on('error', onError)
 server.on('listening', onListening)
 
-let port = normalizePort(process.env.PORT || "1337")
-console.log("Starting on port " + port)
+let port = normalizePort(process.env.PORT || "8000")
+console.info("Starting on port " + port)
 server.listen(port)
 
 /**

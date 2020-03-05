@@ -1,17 +1,8 @@
 :root {
-    /* variations of your primary color */
-    --primary: #1e88e5 !important;
-    --primary-light:  #6ab7ff !important;
-    --primary-dark:  #005cb2 !important;
-    --primary-text:  #000000 !important;
-    --primary-text-color:  #000000 !important;
-
-    /* variations of your secondary color */
-    --secondary:  #ff4081 !important;
-    --secondary-light:  #ff79b0 !important;
-    --secondary-dark:  #c60055 !important;
-    --secondary-text:  #000000 !important;
-    --secondary-text-color:  #000000 !important;
+    --primary-text:         #000000 !important;
+    --primary-text-color:   #000000 !important;
+    --secondary-text:       #000000 !important;
+    --secondary-text-color: #000000 !important;
 }
 
 nav {

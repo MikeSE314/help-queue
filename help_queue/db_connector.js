@@ -1,6 +1,6 @@
 let mongoose = require("mongoose")
 
-require('dotenv').config();
+// require('dotenv').config();
 
 let password = process.env.DB_PW || ""
 
