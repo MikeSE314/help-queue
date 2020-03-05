@@ -2,7 +2,7 @@ let createError = require("http-errors")
 let express = require("express")
 let path = require("path")
 let cookieParser = require("cookie-parser")
-let logger = require("morgan")
+// let logger = require("morgan")
 let bodyParser = require("body-parser")
 let session = require("express-session")
 
@@ -29,7 +29,7 @@ app.use(session({
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "ejs")
 
-app.use(logger("dev"))
+// app.use(logger("dev"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())

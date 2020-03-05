@@ -48,7 +48,7 @@ function getSmallUser(user) {
 
 function makeNonce() {
   nonce = process.env.ADMIN_SECRET || Math.random().toString(36).substring(2, 6)
-  console.log(nonce)
+  console.info(`Admin passphrase: ${nonce}`)
 }
 
 makeNonce()
@@ -97,9 +97,13 @@ router.put("/admin/logout", async (req, res) => {
 
 router.get("/user/:netid", async (req, res) => {
   let netid = req.params.netid
-  console.log(netid)
   let user = await getUser(netid)
-  res.send(user)
+  if (user) {
+    res.send(user)
+    return
+  }
+  console.info(`${netid} failed`)
+  res.sendStatus(500)
 })
 
 // Add to help         | put  | /help/add

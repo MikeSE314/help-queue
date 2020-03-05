@@ -6,7 +6,6 @@ let app = new Vue({
 
     netid: "notset",
 
-    error: false,
     error_message: "",
     helpUsers: [],
     passoffUsers: [],
@@ -53,7 +52,7 @@ let app = new Vue({
     adminRemoveHelp(netid) {
       this.helpUsers.map(item => {
         if (item.netid === netid) {
-          console.log(`Removing %c${item.firstname} ${item.lastname} %cfrom Help List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+          console.info(`Removing %c${item.firstname} ${item.lastname} %cfrom Help List`, 'font-weight: bold; color: white;', 'font-weight: normal')
         }
       })
       url = "api/help/admin/remove"
@@ -75,7 +74,7 @@ let app = new Vue({
     adminRemovePassoff(netid) {
       this.passoffUsers.map(item => {
         if (item.netid === netid) {
-          console.log(`Removing %c${item.firstname} ${item.lastname} %cfrom Passoff List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+          console.info(`Removing %c${item.firstname} ${item.lastname} %cfrom Passoff List`, 'font-weight: bold; color: white;', 'font-weight: normal')
         }
       })
       url = "api/passoff/admin/remove"
@@ -152,6 +151,9 @@ let app = new Vue({
     async getName() {
       url = "api/user/" + this.netid
       await fetch(url).then(response => {
+        if (response.status !== 200) {
+          throw new Error(`Couldn't find netid ${this.netid}`)
+        }
         return response.json()
       }).then(json => {
         this.user = {
@@ -165,6 +167,7 @@ let app = new Vue({
           localStorage.setItem("lastname", json.lastname)
         }
       }).catch(err => {
+        this.error_message = err.message
         console.error(err)
       })
     },

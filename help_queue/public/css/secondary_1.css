@@ -1,0 +1,6 @@
+:root {
+    /* variations of your secondary color */
+    --secondary:       #880e4f !important;
+    --secondary-light: #bc477b !important;
+    --secondary-dark:  #560027 !important;
+}
