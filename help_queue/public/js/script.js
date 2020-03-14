@@ -4,15 +4,21 @@ let app = new Vue({
   // data
   data: {
 
-    netid: "notset",
-
     error_message: "",
     helpUsers: [],
     passoffUsers: [],
     set: false,
-    user: {},
+    user: {
+      zoom: "",
+      name: "",
+    },
+    ta: {
+      name: "The TA",
+      zoom: "example.com",
+    },
     admin: false,
     audio: new Audio('audio/chime.mp3'),
+    modal: undefined,
   },
 
   // methods
@@ -49,44 +55,52 @@ let app = new Vue({
     },
 
     // adminRemoveHelp()
-    adminRemoveHelp(netid) {
+    adminRemoveHelp(name) {
       this.helpUsers.map(item => {
-        if (item.netid === netid) {
-          console.info(`Removing %c${item.firstname} ${item.lastname} %cfrom Help List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+        if (item.name === name) {
+          console.info(`Removing %c${item.name} %cfrom Help List %c\n${item.zoom}`, 'font-weight: bold; color: white;', '', 'font-weight: bold; color: white;')
         }
       })
-      url = "api/help/admin/remove"
+      url = "api/help/remove"
       fetch(url, {
         method: "PUT",
-        body: JSON.stringify({netid: netid}),
+        body: JSON.stringify({name: name}),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         if (response.status !== 200) {
           throw new Error("Bad remove")
         }
         socket.emit("updateList")
+        socket.emit("removed", {
+          name: name,
+          ta: this.user,
+        })
       }).catch(err => {
         console.error(err)
       })
     },
 
     // adminRemovePassoff()
-    adminRemovePassoff(netid) {
+    adminRemovePassoff(name) {
       this.passoffUsers.map(item => {
-        if (item.netid === netid) {
-          console.info(`Removing %c${item.firstname} ${item.lastname} %cfrom Passoff List`, 'font-weight: bold; color: white;', 'font-weight: normal')
+        if (item.name === name) {
+          console.info(`Removing %c${item.name} %cfrom Passoff List %c\n${item.zoom}`, 'font-weight: bold; color: white;', '', 'font-weight: bold; color: white;')
         }
       })
-      url = "api/passoff/admin/remove"
+      url = "api/passoff/remove"
       fetch(url, {
         method: "PUT",
-        body: JSON.stringify({netid: netid}),
+        body: JSON.stringify({name: name}),
         headers: {"Content-Type": "application/json"}
       }).then(response => {
         if (response.status !== 200) {
           throw new Error("Bad remove")
         }
         socket.emit("updateList")
+        socket.emit("removed", {
+          name: name,
+          ta: this.user,
+        })
       }).catch(err => {
         console.error(err)
       })
@@ -124,8 +138,12 @@ let app = new Vue({
 
     // removeHelp()
     removeHelp() {
-      url = "api/help/remove/" + this.netid
-      fetch(url).then(response => {
+      url = "api/help/remove"
+      fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
         if (response.status !== 200) {
           throw new Error("Bad")
         }
@@ -137,8 +155,12 @@ let app = new Vue({
 
     // removePassoff()
     removePassoff() {
-      url = "api/passoff/remove/" + this.netid
-      fetch(url).then(response => {
+      url = "api/passoff/remove"
+      fetch(url, { 
+        method: "PUT",
+        body: JSON.stringify(this.user),
+        headers: {"Content-Type": "application/json"}
+      }).then(response => {
         if (response.status !== 200) {
           throw new Error("Bad")
         }
@@ -148,60 +170,31 @@ let app = new Vue({
       })
     },
 
-    async getName() {
-      url = "api/user/" + this.netid
-      await fetch(url).then(response => {
-        if (response.status !== 200) {
-          throw new Error(`Couldn't find netid ${this.netid}`)
-        }
-        return response.json()
-      }).then(json => {
-        this.user = {
-          netid: json.netid,
-          firstname: json.firstname,
-          lastname: json.lastname
-        }
-        if (json) {
-          localStorage.setItem("netid", json.netid)
-          localStorage.setItem("firstname", json.firstname)
-          localStorage.setItem("lastname", json.lastname)
-        }
-      }).catch(err => {
-        this.error_message = err.message
-        console.error(err)
-      })
-    },
-
-    async setup() {
-      await this.getName()
-      this.getStorage()
-      // get first and last names
-      // store them in local storage
-      // check that it's set up
-    },
-
-    check() {
-
-    },
-
     getStorage() {
-      this.netid = localStorage.getItem("netid")
-      firstname = localStorage.getItem("firstname")
-      lastname = localStorage.getItem("lastname")
+      name = localStorage.getItem("name") || ""
+      zoom = localStorage.getItem("zoom") || ""
       this.user = {
-        netid: this.netid,
-        firstname: firstname,
-        lastname: lastname
+        name: name,
+        zoom: zoom,
       }
       this.set = false
-      if (firstname) {
+      if (name && zoom) {
         this.set = true
       }
     },
 
-    play() {
+    playAdd() {
       if (this.admin) {
         this.audio.play()
+      }
+    },
+
+    playRemove(data) {
+      name = data.name
+      this.ta = data.ta
+      if (this.user.name === name) {
+        this.audio.play()
+        this.modal.open()
       }
     },
 
@@ -214,8 +207,20 @@ let app = new Vue({
       }).catch(err => {
         console.error(err)
       })
-    }
+    },
 
+    setStorage() {
+      localStorage.setItem("name", this.user.name)
+      localStorage.setItem("zoom", this.user.zoom)
+    },
+
+    setup() {
+      this.setStorage()
+      this.getStorage()
+      // get first and last names
+      // store them in local storage
+      // check that it's set up
+    },
 
   },
 
@@ -223,11 +228,11 @@ let app = new Vue({
   computed: {
 
     onHelpList: function() {
-      return this.helpUsers.some(item => item.netid === this.netid)
+      return this.helpUsers.some(item => item.name === this.user.name)
     },
 
     onPassoffList: function() {
-      return this.passoffUsers.some(item => item.netid === this.netid)
+      return this.passoffUsers.some(item => item.name === this.user.name)
     },
 
     onList: function() {
@@ -238,10 +243,10 @@ let app = new Vue({
 
   // created
   created: function() {
-    // this.checkAuthentication()
-    this.getLists()
     this.getStorage()
+    this.getLists()
     this.getAdmin()
+    // this.modal.open()
   },
 
 })
@@ -252,6 +257,23 @@ socket.on("updateList", (data) => {
 })
 
 socket.on("playSound", (data) => {
-  app.play()
+  app.playAdd()
 })
 
+socket.on("removed", (data) => {
+  app.playRemove(data)
+})
+
+document.addEventListener('DOMContentLoaded', function() {
+  let elems = document.querySelectorAll('.modal')
+  let options = {}
+  let instances = M.Modal.init(elems, options)
+  //
+  let elem = document.querySelector("#modal")
+  app.modal = M.Modal.getInstance(elem)
+})
+
+function leave() {
+  localStorage.clear()
+  window.location.href = "/logout"
+}

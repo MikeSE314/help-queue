@@ -86,6 +86,9 @@ io.on("connection", (socket) => {
   socket.on("playSound", (data) => {
     io.emit("playSound")
   })
+  socket.on("removed", (data) => {
+    io.emit("removed", data)
+  })
 })
 
 

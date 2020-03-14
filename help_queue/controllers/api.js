@@ -1,23 +1,20 @@
 let express = require("express")
 let router = express.Router()
-let User = require("../models/User.js")
 
 let nonce
 
 let helpUsers = [
   {
-    netid: "a",
-    firstname: "No",
-    lastname: "admin"
+    name: "No admin",
+    zoom: "..."
   },
 ]
 
 // passoffUsers
 let passoffUsers = [
   {
-    netid: "b",
-    firstname: "No",
-    lastname: "admin"
+    name: "No admin",
+    zoom: "..."
   },
 ]
 
@@ -31,18 +28,10 @@ let passoffUsers = [
 // Remove from passoff | put  | /passoff/remove
 // Get passoff list    | get  | /passoff
 
-async function getUser(netid) {
-  return await User.findOne({netid: netid}, (err, user) => {
-    if (err) throw err
-    return user
-  })
-}
-
 function getSmallUser(user) {
   return {
-    netid: user.netid,
-    firstname: user.firstname,
-    lastname: user.lastname,
+    name: user.name,
+    zoom: user.zoom,
   }
 }
 
@@ -95,41 +84,29 @@ router.put("/admin/logout", async (req, res) => {
   res.sendStatus(401)
 })
 
-router.get("/user/:netid", async (req, res) => {
-  let netid = req.params.netid
-  let user = await getUser(netid)
-  if (user) {
-    res.send(user)
-    return
-  }
-  console.info(`${netid} failed`)
-  res.sendStatus(500)
-})
-
 // Add to help         | put  | /help/add
 router.put("/help/add", async (req, res) => {
-  let netid = req.body.netid
-  if (passoffUsers.some(item => item.netid === netid)) {
+  let name = req.body.name
+  if (passoffUsers.some(item => item.name === name)) {
     res.sendStatus(500)
     return
   }
-  if (helpUsers.some(item => item.netid === netid)) {
+  if (helpUsers.some(item => item.name === name)) {
     res.sendStatus(500)
     return
   }
   helpUsers.push(getSmallUser(req.body))
   res.sendStatus(200)
-  return
 })
 
 // Add to passoff         | put  | /passoff/add
 router.put("/passoff/add", async (req, res) => {
-  let netid = req.body.netid
-  if (passoffUsers.some(item => item.netid === netid)) {
+  let name = req.body.name
+  if (passoffUsers.some(item => item.name === name)) {
     res.sendStatus(500)
     return
   }
-  if (helpUsers.some(item => item.netid === netid)) {
+  if (helpUsers.some(item => item.name === name)) {
     res.sendStatus(500)
     return
   }
@@ -138,30 +115,16 @@ router.put("/passoff/add", async (req, res) => {
 })
 
 // Remove from help    | put  | /help/remove
-router.get("/help/remove/:netid", async (req, res) => {
-  let netid = req.params.netid
-  helpUsers = helpUsers.filter(item => item.netid !== netid)
+router.put("/help/remove", async (req, res) => {
+  let name = req.body.name
+  helpUsers = helpUsers.filter(item => item.name !== name)
   res.sendStatus(200)
 })
 
 // Remove from passoff    | put  | /passoff/remove
-router.get("/passoff/remove/:netid", async (req, res) => {
-  let netid = req.params.netid
-  passoffUsers = passoffUsers.filter(item => item.netid !== netid)
-  res.sendStatus(200)
-})
-
-// Remove from help    | put  | /help/remove
-router.put("/help/admin/remove", async (req, res) => {
-  let netid = req.body.netid
-  helpUsers = helpUsers.filter(item => item.netid !== netid)
-  res.sendStatus(200)
-})
-
-// Remove from passoff    | put  | /passoff/remove
-router.put("/passoff/admin/remove", async (req, res) => {
-  let netid = req.body.netid
-  passoffUsers = passoffUsers.filter(item => item.netid !== netid)
+router.put("/passoff/remove", async (req, res) => {
+  let name = req.body.name
+  passoffUsers = passoffUsers.filter(item => item.name !== name)
   res.sendStatus(200)
 })
 
@@ -171,7 +134,7 @@ router.get("/help", async (req, res) => {
 })
 
 // Get passoff list       | get  | /passoff
-router.get("/passoff/", async (req, res) => {
+router.get("/passoff", async (req, res) => {
   res.send(JSON.stringify(passoffUsers))
 })
 

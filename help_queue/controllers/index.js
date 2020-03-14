@@ -35,4 +35,8 @@ router.get("/logout", async (req, res, next) => {
   res.redirect("/")
 })
 
+router.get("/tutorial", async (req, res, next) => {
+  res.render("tutorial", {p: primary, s: secondary})
+})
+
 module.exports = router
