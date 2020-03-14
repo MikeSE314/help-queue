@@ -1,0 +1,16 @@
+<nav>
+  <div class="nav-wrapper nav-container">
+    <div class="brand-logo">IT&amp;C 210 | <%= title %></div>
+    <% if (title !== "tutorial") { %>
+    <ul class="right">
+      <li><a href="#" onclick="leave()">Log Out</a></li>
+      <% if (admin) { %>
+      <li><a href="/logout">Un-Admin</a></li>
+      <% } else { %>
+      <li><a href="/login">Admin</a></li>
+      <% } %>
+    </ul>
+    <% } %>
+  </div>
+</nav>
+

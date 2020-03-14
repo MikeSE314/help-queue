@@ -1,42 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Help Queue | Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <link rel="stylesheet" href="css/primary_<%= p %>.css">
-  <link rel="stylesheet" href="css/secondary_<%= s %>.css">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <nav>
-    <div class="nav-wrapper">
-      <ul class="right">
-        <li><a href="/">Home</a></li>
-      </ul>
-    </div>
-  </nav>
-  <div class="container">
-    <h1>Help Queue</h1>
+<h1>Help Queue</h1>
 
-    <div id="app">
+<div id="app">
 
-      <form class="row" v-on:submit.prevent="login">
-        <input required type="password" v-model="nonce" placeholder="Code">
-        <button type="submit" class="btn waves-effect" >Log in</button>
-      </form>
-      <div v-if="error">
-        {{ error_message }}
-      </div>
-
-    </div> <!-- app -->
-
+  <form class="row" v-on:submit.prevent="login">
+    <input required type="password" v-model="nonce" placeholder="Code">
+    <button type="submit" class="btn waves-effect" >Log in</button>
+  </form>
+  <div v-if="error">
+    {{ error_message }}
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-  <script src="js/login.js"></script>
-</body>
-</html>
 
+</div> <!-- app -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script src="js/login.js"></script>
