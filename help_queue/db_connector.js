@@ -2,9 +2,7 @@ let mongoose = require("mongoose")
 
 // require('dotenv').config();
 
-let password = process.env.DB_PW || ""
-
-let url = "mongodb+srv://db_user:" + password + "@help-queue-p0xtr.mongodb.net/help_queue?retryWrites=true&w=majority"
+let url = process.env.MONGO_CONNECTION_STRING || ""
 
 mongoose.connect(url, {useUnifiedTopology: true, useNewUrlParser: true}, (err) => {
     if(err) console.error(err)
