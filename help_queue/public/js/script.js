@@ -84,7 +84,7 @@ let app = new Vue({
     adminRemovePassoff(name) {
       this.passoffUsers.map(item => {
         if (item.name === name) {
-          console.info(`Removing %c${item.name} %cfrom Passoff List %c\n${item.zoom}`, 'font-weight: bold; color: white;', '', 'font-weight: bold; color: white;')
+          console.info(`Removing %c${item.name} %cfrom Passoff List %c\n${item.zoom}`, 'font-weight: bold;', '', 'font-weight: bold;')
         }
       })
       url = "api/passoff/remove"
