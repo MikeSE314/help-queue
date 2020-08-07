@@ -135,3 +135,7 @@ node_modules
 .*.un~
 .*.swp
 .*.swo
+
+# macOS files
+
+.DS_Store
